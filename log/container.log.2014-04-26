@@ -1,0 +1,64 @@
+[2;32m2014-04-26 10:50:14,199 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:50:14,459 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 10:51:37,993 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:51:38,061 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 10:51:57,603 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:51:57,678 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 10:53:01,405 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:53:01,475 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[7;31m2014-04-26 10:53:01,483 - ERROR [main:Container@54] - startup error for /js/startup.js
+[mcom.hqch.simple.exception.ScriptException: sun.org.mozilla.javascript.internal.EcmaError: ReferenceError: "System" is not defined. (<Unknown source>#24) in <Unknown source> at line number 24
+	at com.hqch.simple.Container.initScript(Container.java:70)
+	at com.hqch.simple.Container.init(Container.java:52)
+	at test.Test.main(Test.java:8)
+Caused by: javax.script.ScriptException: sun.org.mozilla.javascript.internal.EcmaError: ReferenceError: "System" is not defined. (<Unknown source>#24) in <Unknown source> at line number 24
+	at com.sun.script.javascript.RhinoScriptEngine.eval(RhinoScriptEngine.java:156)
+	at com.hqch.simple.Container.initScript(Container.java:68)
+	... 2 more
+[2;32m2014-04-26 10:53:28,613 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:53:28,683 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[7;31m2014-04-26 10:53:28,692 - ERROR [main:Container@54] - startup error for /js/startup.js
+[mcom.hqch.simple.exception.ScriptException: sun.org.mozilla.javascript.internal.EcmaError: ReferenceError: "System" is not defined. (<Unknown source>#24) in <Unknown source> at line number 24
+	at com.hqch.simple.Container.initScript(Container.java:70)
+	at com.hqch.simple.Container.init(Container.java:52)
+	at test.Test.main(Test.java:8)
+Caused by: javax.script.ScriptException: sun.org.mozilla.javascript.internal.EcmaError: ReferenceError: "System" is not defined. (<Unknown source>#24) in <Unknown source> at line number 24
+	at com.sun.script.javascript.RhinoScriptEngine.eval(RhinoScriptEngine.java:156)
+	at com.hqch.simple.Container.initScript(Container.java:68)
+	... 2 more
+[2;32m2014-04-26 10:54:46,866 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:54:46,931 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 10:55:00,857 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:55:00,929 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 10:55:14,740 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:55:14,810 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 10:56:09,724 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:56:09,793 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 10:56:09,796 - INFO  [main:Container@110] - remote server was init.Resource [name=system, host=192.168.1.252, port=40001]
+[m[2;32m2014-04-26 10:56:09,797 - INFO  [main:Container@110] - remote server was init.Resource [name=data, host=192.168.1.252, port=50001]
+[m[2;32m2014-04-26 10:56:48,515 - INFO  [main:Container@78] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 10:56:48,576 - INFO  [main:Container@100] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 10:56:48,593 - INFO  [main:Container@110] - remote server was init.Resource [name=system, host=192.168.1.252, port=40001]
+[m[2;32m2014-04-26 10:56:48,594 - INFO  [main:Container@110] - remote server was init.Resource [name=data, host=192.168.1.252, port=50001]
+[m[2;32m2014-04-26 11:29:18,732 - INFO  [main:Container@79] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 11:29:18,804 - INFO  [main:Container@101] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[7;31m2014-04-26 11:29:18,828 - ERROR [main:Container@55] - startup error for /js/startup.js
+[mcom.hqch.simple.exception.ScriptException: sun.org.mozilla.javascript.internal.EvaluatorException: Java constructor for "com.hqch.simple.server.GameServer" with arguments "" not found. (<Unknown source>#17) in <Unknown source> at line number 17
+	at com.hqch.simple.Container.initScript(Container.java:71)
+	at com.hqch.simple.Container.init(Container.java:53)
+	at test.Test.main(Test.java:8)
+Caused by: javax.script.ScriptException: sun.org.mozilla.javascript.internal.EvaluatorException: Java constructor for "com.hqch.simple.server.GameServer" with arguments "" not found. (<Unknown source>#17) in <Unknown source> at line number 17
+	at com.sun.script.javascript.RhinoScriptEngine.eval(RhinoScriptEngine.java:156)
+	at com.hqch.simple.Container.initScript(Container.java:69)
+	... 2 more
+[2;32m2014-04-26 11:30:08,791 - INFO  [main:Container@79] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 11:30:08,859 - INFO  [main:Container@101] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 11:30:08,867 - INFO  [main:GameServer@22] - game server was init.port:0
+[m[2;32m2014-04-26 11:30:08,869 - INFO  [main:Container@111] - remote server was init.Resource [name=system, host=192.168.1.252, port=40001]
+[m[2;32m2014-04-26 11:30:08,869 - INFO  [main:Container@111] - remote server was init.Resource [name=data, host=192.168.1.252, port=50001]
+[m[2;32m2014-04-26 11:31:56,314 - INFO  [main:Container@79] - cache was init.Resource [name=null, host=192.168.1.252, port=11111]
+[m[2;32m2014-04-26 11:31:56,387 - INFO  [main:Container@101] - rmi was init.Resource [name=null, host=192.168.1.252, port=10001]
+[m[2;32m2014-04-26 11:31:56,396 - INFO  [main:GameServer@20] - game server was init.port:10002
+[m[2;32m2014-04-26 11:31:56,398 - INFO  [main:Container@111] - remote server was init.Resource [name=system, host=192.168.1.252, port=40001]
+[m[2;32m2014-04-26 11:31:56,399 - INFO  [main:Container@111] - remote server was init.Resource [name=data, host=192.168.1.252, port=50001]
+[m

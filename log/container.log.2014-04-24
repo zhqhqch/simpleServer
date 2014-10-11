@@ -1,0 +1,15 @@
+[7;31m2014-04-24 18:25:04,908 - ERROR [main:Container@42] - startup error for startup.js
+[m[7;31m2014-04-24 18:25:38,250 - ERROR [main:Container@42] - startup error for startup.js
+[mjava.lang.NullPointerException
+	at java.io.Reader.<init>(Reader.java:61)
+	at java.io.InputStreamReader.<init>(InputStreamReader.java:55)
+	at com.hqch.simple.Container.initScript(Container.java:57)
+	at com.hqch.simple.Container.init(Container.java:40)
+	at test.Test.main(Test.java:8)
+[7;31m2014-04-24 18:26:36,275 - ERROR [main:Container@42] - startup error for js/startup.js
+[mjava.lang.NullPointerException
+	at java.io.Reader.<init>(Reader.java:61)
+	at java.io.InputStreamReader.<init>(InputStreamReader.java:55)
+	at com.hqch.simple.Container.initScript(Container.java:57)
+	at com.hqch.simple.Container.init(Container.java:40)
+	at test.Test.main(Test.java:8)
