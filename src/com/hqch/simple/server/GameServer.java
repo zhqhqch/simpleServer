@@ -48,7 +48,6 @@ public class GameServer extends Server {
 		this.container = Container.get();
 		
 		this.serviceManager = new ServiceManager();
-		
 		this.responseThread = new ResponseThread(SERIALIZE_THREAD_SIZE);
 		this.requestThread = new RequestThread(SERIALIZE_THREAD_SIZE, 
 				this.responseThread, this.serviceManager);
