@@ -1,4 +1,4 @@
-package com.hqch.simple.cache;
+package com.hqch.simple.resource;
 
 public class Resource {
 

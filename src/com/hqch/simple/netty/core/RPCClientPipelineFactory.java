@@ -9,29 +9,32 @@ import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.execution.ExecutionHandler;
+import org.jboss.netty.handler.timeout.IdleStateHandler;
 import org.jboss.netty.util.CharsetUtil;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 
-import com.hqch.simple.netty.io.GameRequestThread;
 
-/**
- * netty 处理接受客户端消息
- * @author hqch
- *
- */
-public class JSONServerPipelineFactory implements ChannelPipelineFactory {
+public class RPCClientPipelineFactory implements ChannelPipelineFactory {
 
 	private final ExecutionHandler executionHandler;
 
 	private DefaultChannelGroup channelGroup;
 
-	private final JSONServerHandler jsonServerHandler;
+	private final RPCClientHandler rpcClientHandler;
 
-	public JSONServerPipelineFactory(ExecutionHandler executionHandler,
-			DefaultChannelGroup channelGroup, GameRequestThread requestThread) {
+	private final IdleStateHandler idleStateHandler;
+	
+	private final HeartbeatHandler heartbeatHandler;
+	
+	public RPCClientPipelineFactory(String name, ExecutionHandler executionHandler,
+			DefaultChannelGroup channelGroup) {
 		this.channelGroup = channelGroup;
 		this.executionHandler = executionHandler;
-		this.jsonServerHandler = new JSONServerHandler(this.channelGroup, 
-				requestThread);
+		this.rpcClientHandler = new RPCClientHandler(this.channelGroup);
+		Timer timer = new HashedWheelTimer();
+		this.idleStateHandler = new IdleStateHandler(timer, 60, 60,0);
+		this.heartbeatHandler = new HeartbeatHandler(name);
 	}
 
 	@Override
@@ -41,6 +44,8 @@ public class JSONServerPipelineFactory implements ChannelPipelineFactory {
 				new StringDecoder(CharsetUtil.UTF_8), 
 				new StringEncoder(CharsetUtil.UTF_8),
 				executionHandler,
-				jsonServerHandler);
+				rpcClientHandler,
+				idleStateHandler,
+				heartbeatHandler);
 	}
 }

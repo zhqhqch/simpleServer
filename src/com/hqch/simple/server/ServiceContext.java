@@ -5,22 +5,23 @@ import com.hqch.simple.container.GameSession;
 public interface ServiceContext {
 
 	public GameSession getSession();
+	public void sendMessage(String serviceID, Object message);
 	
-	String getAsString(String key);
-	String getAsString(boolean require,String key);
+	public String getAsString(String key);
+	public String getAsString(boolean require,String key);
 
-	Integer getAsInt(String key);
-	Integer getAsInt(boolean require,String key);
+	public Integer getAsInt(String key);
+	public Integer getAsInt(boolean require,String key);
 
-	Long getAsLong(String key);
-	Long getAsLong(boolean require,String key);
+	public Long getAsLong(String key);
+	public Long getAsLong(boolean require,String key);
 
-	Double getAsDouble(String key);
-	Double getAsDouble(boolean require,String key);
+	public Double getAsDouble(String key);
+	public Double getAsDouble(boolean require,String key);
 
-	Float getAsFloat(String key);
-	Float getAsFloat(boolean require,String key);
+	public Float getAsFloat(String key);
+	public Float getAsFloat(boolean require,String key);
 
-	Boolean getAsBoolean(String key);
-	Boolean getAsBoolean(boolean require,String key);
+	public Boolean getAsBoolean(String key);
+	public Boolean getAsBoolean(boolean require,String key);
 }

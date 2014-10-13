@@ -1,4 +1,4 @@
-importPackage(com.hqch.simple.cache);
+importPackage(com.hqch.simple.resource);
 importPackage(com.hqch.simple.server);
 
 //注册缓存
@@ -6,12 +6,6 @@ var caches = new Resource();
 caches.host = "192.168.1.252";
 caches.port = 11111;
 $.registerCache("cache", caches);
-
-//配置rmi
-var rmi = new Resource();
-rmi.host = "192.168.1.252";
-rmi.port = 10001;
-$.initRemote(rmi);
 
 //配置本server
 var server = new GameServer();

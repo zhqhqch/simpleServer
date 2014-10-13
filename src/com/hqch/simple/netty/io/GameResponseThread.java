@@ -10,10 +10,10 @@ import org.apache.log4j.Logger;
 
 import com.hqch.simple.log.LoggerFactory;
 
-public class ResponseThread {
+public class GameResponseThread {
 
 	private static Logger logger = LoggerFactory
-			.getLogger(ResponseThread.class);
+			.getLogger(GameResponseThread.class);
 	
 	private LinkedBlockingQueue<ResponseInfo> sendQueen = new LinkedBlockingQueue<ResponseInfo>(
 			512);
@@ -26,7 +26,7 @@ public class ResponseThread {
 	
 	private int poolSize;
 	
-	public ResponseThread(int poolSize){
+	public GameResponseThread(int poolSize){
 		this.poolSize = poolSize;
 		this.reStartThreadCount = new AtomicInteger(1);
 		

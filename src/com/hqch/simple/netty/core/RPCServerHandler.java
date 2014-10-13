@@ -14,8 +14,9 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.hqch.simple.log.LoggerFactory;
-import com.hqch.simple.netty.io.GameRequestThread;
-import com.hqch.simple.netty.io.RequestInfo;
+import com.hqch.simple.netty.io.RPCInfo;
+import com.hqch.simple.netty.io.RPCRequest;
+import com.hqch.simple.netty.io.RPCRequestThread;
 
 /**
  * 
@@ -23,17 +24,17 @@ import com.hqch.simple.netty.io.RequestInfo;
  * @author hqch
  * 
  */
-public class JSONServerHandler extends SimpleChannelHandler {
+public class RPCServerHandler extends SimpleChannelHandler {
 
 	private static Logger logger = LoggerFactory
-			.getLogger(JSONServerHandler.class);
+			.getLogger(RPCServerHandler.class);
 
 	private DefaultChannelGroup channelGroup;
 	
-	private GameRequestThread requestThread;
+	private RPCRequestThread requestThread;
 	
-	public JSONServerHandler(DefaultChannelGroup channelGroup, 
-			GameRequestThread requestThread) {
+	public RPCServerHandler(DefaultChannelGroup channelGroup, 
+			RPCRequestThread requestThread) {
 		this.channelGroup = channelGroup;
 		this.requestThread = requestThread;
 	}
@@ -59,10 +60,12 @@ public class JSONServerHandler extends SimpleChannelHandler {
 			MessageEvent messageEvent) throws Exception {
 		String msg = (String)messageEvent.getMessage();
 		JSONObject request = JSONObject.fromObject(msg);
-		RequestInfo info = (RequestInfo)JSONObject.toBean(request, RequestInfo.class);
-		info.setChannel(ctx.getChannel());
+		RPCRequest info = (RPCRequest)JSONObject.toBean(request, RPCRequest.class);
+//		info.setChannel(ctx.getChannel());
+//		
+//		requestThread.accept(info);
 		
-		requestThread.accept(info);
+		System.out.println("##############" + info);
 	}
 
 	@Override

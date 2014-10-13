@@ -1,6 +1,8 @@
-package com.hqch.simple.server;
+package com.hqch.simple.rpc.server;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 import javax.script.ScriptException;
@@ -15,18 +17,16 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
-import com.hqch.simple.container.Container;
 import com.hqch.simple.container.Server;
 import com.hqch.simple.log.LoggerFactory;
-import com.hqch.simple.netty.core.JSONServerPipelineFactory;
-import com.hqch.simple.netty.io.GameRequestThread;
-import com.hqch.simple.netty.io.GameResponseThread;
+import com.hqch.simple.netty.core.RPCServerPipelineFactory;
+import com.hqch.simple.netty.io.RPCRequestThread;
+import com.hqch.simple.netty.io.RPCResponseThread;
+import com.hqch.simple.rpc.RPCInvocationHandler;
 
-public class GameServer extends Server {
+public class RPCServer extends Server {
 
-	private Logger logger = LoggerFactory.getLogger(GameServer.class);
-	
-	private static final String PROTOCOL_JSON = "json";
+	private Logger logger = LoggerFactory.getLogger(RPCServer.class);
 	
 	/**解析socket信息线程大小*/
 	private static final int SERIALIZE_THREAD_SIZE = 10;
@@ -36,43 +36,32 @@ public class GameServer extends Server {
 
 	/** 处理转发请求连接池大小 */
 	private static final int POOL_SIZE = 256;
-
-	private String protocol;
-	private Container container;
-	private GameRequestThread requestThread;
-	private GameResponseThread responseThread;
-	private ServiceManager serviceManager;
-
-	public GameServer() {
-		this.container = Container.get();
+	
+	private RPCRequestThread requestThread;
+	private RPCResponseThread responseThread;
+	private RPCInvocationHandler handler;
+	
+	public RPCServer(){
 		
-		this.serviceManager = new ServiceManager();
-		this.responseThread = new GameResponseThread(SERIALIZE_THREAD_SIZE);
-		this.requestThread = new GameRequestThread(SERIALIZE_THREAD_SIZE, 
-				this.responseThread, this.serviceManager);
+//		this.responseThread = new RPCResponseThread(SERIALIZE_THREAD_SIZE);
+		this.requestThread = new RPCRequestThread(SERIALIZE_THREAD_SIZE);
 	}
 	
-	public void init() throws ScriptException {
+	private void init(){
 		InetSocketAddress addr = new InetSocketAddress(port);// 需要监听的端口，即tcp连接建立的端口
 		ServerSocketChannelFactory channelFactory = new NioServerSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool());
 		DefaultChannelGroup allChannels = new DefaultChannelGroup(
-				"accpetServerChannelGroup");
+				"rpcServerChannelGroup");
 
 		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
 
 		ExecutionHandler executionHandler = new ExecutionHandler(
 				new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MSG_SIZE,
 						MSG_SIZE));
-		ChannelPipelineFactory pipelineFactory = null;
-		
-		if(PROTOCOL_JSON.equalsIgnoreCase(protocol)){
-			pipelineFactory = new JSONServerPipelineFactory(
-					executionHandler, allChannels, requestThread);
-		} else {
-			throw new ScriptException("protocol was error.[" + protocol + "]");
-		}
+		ChannelPipelineFactory pipelineFactory = new RPCServerPipelineFactory(
+				executionHandler, allChannels, requestThread);;
 		
 		bootstrap.setPipelineFactory(pipelineFactory);
 
@@ -83,32 +72,18 @@ public class GameServer extends Server {
 		Channel serverChannel = bootstrap.bind(addr);
 		allChannels.add(serverChannel);
 		
-		
-		logger.info("game server was init.port:" + port + ", protocol:" + protocol);
+		logger.info("rpc server was init.port:" + port);
 	}
 	
 	@Override
 	public void start() throws Exception {
-		// TODO Auto-generated method stub
 		init();
 	}
 
 	@Override
-	public void stop() {
+	public void stop() throws Exception {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void registerService(GameService service) {
-		serviceManager.registerService(service);
-	}
-
-	public String getProtocol() {
-		return protocol;
-	}
-
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
-	
 }

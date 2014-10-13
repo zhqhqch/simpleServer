@@ -1,11 +1,16 @@
 package com.hqch.simple.server;
 
+import org.apache.log4j.Logger;
+
 import com.hqch.simple.StringUtil;
 import com.hqch.simple.container.GameSession;
+import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.io.RequestInfo;
 
 public class ServiceContextImpl implements ServiceContext {
 
+	private Logger logger = LoggerFactory.getLogger(ServiceContextImpl.class);
+	
 	private RequestInfo request;
 	
 	public ServiceContextImpl(RequestInfo request){
@@ -17,6 +22,16 @@ public class ServiceContextImpl implements ServiceContext {
 		return request.getSession();
 	}
 
+	@Override
+	public void sendMessage(String serviceID, Object message) {
+		GameSession session = getSession();
+		if(session == null){
+			logger.warn(serviceID + " can't send, becase session was null");
+			return;
+		}
+		getSession().sendMessage(serviceID, message);
+	}
+	
 	@Override
 	public String getAsString(String key) {
 		return String.valueOf(request.getData().get(key));

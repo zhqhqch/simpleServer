@@ -11,26 +11,26 @@ import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.util.CharsetUtil;
 
-import com.hqch.simple.netty.io.GameRequestThread;
+import com.hqch.simple.netty.io.RPCRequestThread;
 
 /**
  * netty 处理接受客户端消息
  * @author hqch
  *
  */
-public class JSONServerPipelineFactory implements ChannelPipelineFactory {
+public class RPCServerPipelineFactory implements ChannelPipelineFactory {
 
 	private final ExecutionHandler executionHandler;
 
 	private DefaultChannelGroup channelGroup;
 
-	private final JSONServerHandler jsonServerHandler;
+	private final RPCServerHandler rpcServerHandler;
 
-	public JSONServerPipelineFactory(ExecutionHandler executionHandler,
-			DefaultChannelGroup channelGroup, GameRequestThread requestThread) {
+	public RPCServerPipelineFactory(ExecutionHandler executionHandler,
+			DefaultChannelGroup channelGroup, RPCRequestThread requestThread) {
 		this.channelGroup = channelGroup;
 		this.executionHandler = executionHandler;
-		this.jsonServerHandler = new JSONServerHandler(this.channelGroup, 
+		this.rpcServerHandler = new RPCServerHandler(this.channelGroup, 
 				requestThread);
 	}
 
@@ -41,6 +41,6 @@ public class JSONServerPipelineFactory implements ChannelPipelineFactory {
 				new StringDecoder(CharsetUtil.UTF_8), 
 				new StringEncoder(CharsetUtil.UTF_8),
 				executionHandler,
-				jsonServerHandler);
+				rpcServerHandler);
 	}
 }

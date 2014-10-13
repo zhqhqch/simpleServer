@@ -7,8 +7,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.jboss.netty.channel.Channel;
 
+import com.hqch.simple.netty.io.GameResponseThread;
 import com.hqch.simple.netty.io.ResponseInfo;
-import com.hqch.simple.netty.io.ResponseThread;
 
 public class GameSessionImpl implements GameSession {
 
@@ -18,13 +18,13 @@ public class GameSessionImpl implements GameSession {
 	
 	private Map<String, Object> data;
 	
-	private ResponseThread responseThread;
+	private GameResponseThread responseThread;
 	
 	/**不公平锁*/
 	private Lock lock = new ReentrantLock();
 	
 	public GameSessionImpl(String sessionID, Channel channel,
-			ResponseThread responseThread){
+			GameResponseThread responseThread){
 		this.sessionID = sessionID;
 		this.channel = channel;
 		this.connected = true;
@@ -41,11 +41,11 @@ public class GameSessionImpl implements GameSession {
 		this.channel = channel;
 	}
 
-	public ResponseThread getResponseThread() {
+	public GameResponseThread getResponseThread() {
 		return responseThread;
 	}
 
-	public void setResponseThread(ResponseThread responseThread) {
+	public void setResponseThread(GameResponseThread responseThread) {
 		this.responseThread = responseThread;
 	}
 
@@ -83,4 +83,12 @@ public class GameSessionImpl implements GameSession {
 		lock.unlock();
 	}
 
+	
+	public void put(String key, Object obj){
+		data.put(key, obj);
+	}
+	
+	public void remove(String key){
+		data.remove(key);
+	}
 }

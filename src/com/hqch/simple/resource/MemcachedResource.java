@@ -1,4 +1,4 @@
-package com.hqch.simple.cache;
+package com.hqch.simple.resource;
 
 import net.rubyeye.xmemcached.MemcachedClient;
 import net.rubyeye.xmemcached.MemcachedClientBuilder;

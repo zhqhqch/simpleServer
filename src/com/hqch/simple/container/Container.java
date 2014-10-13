@@ -2,13 +2,10 @@ package com.hqch.simple.container;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.server.RMISocketFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,15 +19,16 @@ import javax.script.SimpleScriptContext;
 import org.apache.log4j.Logger;
 import org.jboss.netty.channel.Channel;
 
-import com.hqch.simple.cache.MemcachedResource;
-import com.hqch.simple.cache.Resource;
 import com.hqch.simple.core.script.StartupContext;
 import com.hqch.simple.core.script.StartupContextImpl;
 import com.hqch.simple.exception.ScriptException;
 import com.hqch.simple.log.LoggerFactory;
-import com.hqch.simple.netty.io.ResponseThread;
-import com.hqch.simple.rmi.RemoteManager;
-import com.hqch.simple.rmi.SMRMISocket;
+import com.hqch.simple.netty.io.GameResponseThread;
+import com.hqch.simple.resource.MemcachedResource;
+import com.hqch.simple.resource.Resource;
+import com.hqch.simple.rpc.AbstractProxyFactory;
+import com.hqch.simple.rpc.RPCManager;
+import com.hqch.simple.rpc.RPCProxyFactory;
 
 public class Container {
 
@@ -40,6 +38,8 @@ public class Container {
 	private static final String RMI_BING = "rmi://%s:%s/%s";
 	
 	private static Map<String, MemcachedResource> resourceMap;
+	
+	private static Map<String, RPCProxyFactory> proxyFactoryMap;
 	
 	private static Container container = new Container();
 	
@@ -51,6 +51,7 @@ public class Container {
 		resourceMap = new HashMap<String, MemcachedResource>();
 		allSession = new ConcurrentHashMap<String, GameSession>();
 		serverMap = new HashMap<String, Server>();
+		proxyFactoryMap = new HashMap<String, RPCProxyFactory>();
 	}
 	
 	public static Container get(){
@@ -102,23 +103,17 @@ public class Container {
 		}
 	}
 
-	public void initRemote(Resource res) {
-		try {
-			RMISocketFactory.setSocketFactory(new SMRMISocket(res.getPort())); 
-			System.setProperty("java.rmi.server.hostname", res.getHost());
-			LocateRegistry.createRegistry(res.getPort());
-			
-			logger.info("rmi was init." + res);
-		} catch (RemoteException e) {
-			logger.error("RemoteException", e);
-		} catch (IOException e) {
-			logger.error("IOException", e);
-		}
-	}
-
 	public void addRemoteServer(Resource res) {
-		RemoteManager.addClient(res);
-		logger.info("remote server was init." + res);
+		boolean success = RPCManager.getInstance().addClient(res);
+		if(success){
+			logger.info("remote server was init." + res);
+			
+			RPCProxyFactory proxyFactory = proxyFactoryMap.get(res.getName());
+			if(proxyFactory==null){
+				proxyFactory = new RPCProxyFactory();
+				proxyFactoryMap.put(res.getName(),proxyFactory);
+			}
+		}
 	}
 
 	public void initServer(Server server) {
@@ -139,10 +134,19 @@ public class Container {
 		return allSession.get(sessionID);
 	}
 	
-	public GameSession createSession(String sessionID, Channel channel, ResponseThread responseThread){
+	public GameSession createSession(String sessionID, Channel channel, GameResponseThread responseThread){
 		GameSession session = new GameSessionImpl(sessionID, channel, responseThread);
 		allSession.put(sessionID, session);
 		
 		return session;
+	}
+	
+	public <T> T createRemoteAction(Class<T>clazz,String clusterName){
+		AbstractProxyFactory proxyFactory = proxyFactoryMap.get(clusterName);
+		if(proxyFactory == null){
+			throw new IllegalArgumentException("can not find cluster:"
+					+clusterName);
+		}
+		return (T) proxyFactory.create(clazz);
 	}
 }

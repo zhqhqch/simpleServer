@@ -1,7 +1,13 @@
 package com.hqch.simple;
 
+import java.util.UUID;
+
 public class StringUtil {
 
+	public static String generateID(){
+		return UUID.randomUUID().toString().replace("-", "");
+	}
+	
 	public static boolean isNull(String str){
 		if(str == null){
 			return true;

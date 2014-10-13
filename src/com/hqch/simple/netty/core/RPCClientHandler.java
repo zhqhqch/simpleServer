@@ -2,6 +2,7 @@ package com.hqch.simple.netty.core;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
+import java.util.Arrays;
 
 import net.sf.json.JSONObject;
 
@@ -14,28 +15,20 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.hqch.simple.log.LoggerFactory;
-import com.hqch.simple.netty.io.GameRequestThread;
-import com.hqch.simple.netty.io.RequestInfo;
+import com.hqch.simple.netty.io.RPCRequest;
+import com.hqch.simple.netty.io.RPCResult;
+import com.hqch.simple.rpc.RPCManager;
 
-/**
- * 
- * 
- * @author hqch
- * 
- */
-public class JSONServerHandler extends SimpleChannelHandler {
+
+public class RPCClientHandler extends SimpleChannelHandler {
 
 	private static Logger logger = LoggerFactory
-			.getLogger(JSONServerHandler.class);
+			.getLogger(RPCClientHandler.class);
 
 	private DefaultChannelGroup channelGroup;
-	
-	private GameRequestThread requestThread;
-	
-	public JSONServerHandler(DefaultChannelGroup channelGroup, 
-			GameRequestThread requestThread) {
+
+	public RPCClientHandler(DefaultChannelGroup channelGroup) {
 		this.channelGroup = channelGroup;
-		this.requestThread = requestThread;
 	}
 
 	@Override
@@ -43,8 +36,6 @@ public class JSONServerHandler extends SimpleChannelHandler {
 			ChannelStateEvent e) throws Exception {
 		super.channelDisconnected(ctx, e);
 		channelGroup.remove(ctx.getChannel());
-		
-		int channelID = ctx.getChannel().getId();
 	}
 
 	@Override
@@ -59,10 +50,8 @@ public class JSONServerHandler extends SimpleChannelHandler {
 			MessageEvent messageEvent) throws Exception {
 		String msg = (String)messageEvent.getMessage();
 		JSONObject request = JSONObject.fromObject(msg);
-		RequestInfo info = (RequestInfo)JSONObject.toBean(request, RequestInfo.class);
-		info.setChannel(ctx.getChannel());
-		
-		requestThread.accept(info);
+		RPCRequest info = (RPCRequest)JSONObject.toBean(request, RPCResult.class);
+		logger.debug("received server messgae:" + info);
 	}
 
 	@Override
@@ -73,7 +62,8 @@ public class JSONServerHandler extends SimpleChannelHandler {
 		} else if (e.getCause() instanceof IOException) {
 			e.getChannel().close();
 		} else {
-			logger.error("JSONServerHandler",e.getCause());
+			logger.error("RPCClientHandler",e.getCause());
 		}
 	}
+
 }

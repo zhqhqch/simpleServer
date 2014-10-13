@@ -1,6 +1,6 @@
 package com.hqch.simple.exception;
 
-public class ScriptException extends Exception {
+public class ScriptException extends BizException {
 
 	private static final long serialVersionUID = -6067332569092501149L;
 

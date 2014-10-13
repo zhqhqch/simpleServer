@@ -1,8 +1,8 @@
 package com.hqch.simple.core.script;
 
-import com.hqch.simple.cache.Resource;
 import com.hqch.simple.container.Container;
 import com.hqch.simple.container.Server;
+import com.hqch.simple.resource.Resource;
 
 public class StartupContextImpl implements StartupContext {
 	
@@ -20,11 +20,6 @@ public class StartupContextImpl implements StartupContext {
 	@Override
 	public void addRemoteServer(Resource res) {
 		container.addRemoteServer(res);
-	}
-	
-	@Override
-	public void initRemote(Resource res) {
-		container.initRemote(res);
 	}
 	
 	@Override

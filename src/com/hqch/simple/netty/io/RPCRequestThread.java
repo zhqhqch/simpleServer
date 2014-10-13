@@ -10,22 +10,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
-import com.hqch.simple.container.Container;
-import com.hqch.simple.container.GameSession;
 import com.hqch.simple.log.LoggerFactory;
-import com.hqch.simple.server.GameWorker;
-import com.hqch.simple.server.ServiceManager;
+import com.hqch.simple.rpc.RPCWorker;
 
-public class RequestThread {
+public class RPCRequestThread {
 
 	private static Logger logger = LoggerFactory
-			.getLogger(RequestThread.class);
+			.getLogger(GameRequestThread.class);
 	
 	private static final int DEFAULT_CORE_POOL_SIZE = 256;
 	private static final int DEFAULT_MAX_POOL_SIZE = 512;
 	private static final int MAX_REQUEST_QUEUE_SIZE = 1024;
 	
-	private LinkedBlockingQueue<RequestInfo> receivedQueen = new LinkedBlockingQueue<RequestInfo>(
+	private LinkedBlockingQueue<RPCInfo> receivedQueen = new LinkedBlockingQueue<RPCInfo>(
 			MAX_REQUEST_QUEUE_SIZE);
 	
 	private ArrayBlockingQueue<Runnable> requestQueue;
@@ -40,23 +37,17 @@ public class RequestThread {
 	
 	private AtomicInteger workCount = new AtomicInteger();
 	
-	private ResponseThread responseThread;
-	
-	private ServiceManager serviceManager;
 	
 	private ThreadPoolExecutor threadPool;
 	
-	public RequestThread(int poolSize, ResponseThread responseThread, ServiceManager serviceManager){
+	public RPCRequestThread(int poolSize){
 		this.poolSize = poolSize;
 		this.reStartThreadCount = new AtomicInteger(1);
-		
-		this.responseThread = responseThread;
-		this.serviceManager = serviceManager;
 		
 		ThreadFactory tf=new ThreadFactory() {
 			@Override
 			public Thread newThread(Runnable r) {
-				Thread t=new Thread(r);
+				Thread t = new Thread(r);
 				t.setName("WorkerThread-" + workCount.incrementAndGet());
 				return t;
 			}
@@ -88,35 +79,24 @@ public class RequestThread {
 		@Override
 		public void run() {
 			while(true){
-				RequestInfo info = waitForProcess();
+				RPCInfo info = waitForProcess();
 				logger.debug(receivedQueen.size() + "-->received clinet message:" + info);
 				
 				if(info != null){
-					GameWorker gw = new GameWorker(serviceManager,info);
+					RPCWorker gw = new RPCWorker(info);
 					threadPool.execute(gw);
-//					try {
-//						serviceManager.executeService(info);
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
+					
 					count.getAndIncrement();
 					System.out.println(count.get());
 				}
 			}
 		}
 		
-		private RequestInfo waitForProcess() {
-			RequestInfo info = null;
+		private RPCInfo waitForProcess() {
+			RPCInfo info = null;
 			try {
 				info = receivedQueen.poll(2, TimeUnit.SECONDS);
 				logger.debug(receivedQueen.size() + "@@@@@@@@@@" + info);
-				if(info != null){
-					GameSession session = Container.get().getGameSessionByID(info.getId());
-					if(session == null){
-						session = Container.get().createSession(info.getId(),info.getChannel(), responseThread);
-					}
-					info.setSession(session);
-				}
 			} catch (InterruptedException e) {
 				logger.error("waitForProcessMessage",e);
 			}
@@ -127,25 +107,27 @@ public class RequestThread {
 
 	
 	
-	public void accept(RequestInfo info){
-		if (info != null) {
-			try {
-				boolean success = receivedQueen.offer(info, 2,
-						TimeUnit.SECONDS);
-				while (false == success) {
-					// maybe PushRecvThread is break,restart the thread again
-					if (reStartThreadCount.get() < poolSize) {
-						scheduler.execute(new WorkThread());
-						reStartThreadCount.getAndIncrement();
-					}
-					success = receivedQueen.offer(info, 2,
-							TimeUnit.SECONDS);
+	public RPCResult sendRequest(RPCInfo info){
+		try {
+			boolean success = receivedQueen.offer(info, 2,
+					TimeUnit.SECONDS);
+			while (false == success) {
+				// maybe PushRecvThread is break,restart the thread again
+				if (reStartThreadCount.get() < poolSize) {
+					scheduler.execute(new WorkThread());
+					reStartThreadCount.getAndIncrement();
 				}
-			} catch (InterruptedException e) {
-				logger.error("addSocketMessage",e);
+				success = receivedQueen.offer(info, 2,
+						TimeUnit.SECONDS);
 			}
-			
-			logger.debug("client msg len:" + receivedQueen.size());
+		} catch (InterruptedException e) {
+			logger.error("addSocketMessage",e);
 		}
+		
+		logger.debug("client msg len:" + receivedQueen.size());
+		
+		RPCResult result = new RPCResult();
+		result.setId(info.getId());
+		return result;
 	}
 }
