@@ -1,4 +1,4 @@
-package com.hqch.simple;
+package com.hqch.simple.util;
 
 import java.util.UUID;
 

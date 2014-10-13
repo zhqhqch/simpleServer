@@ -2,10 +2,10 @@ package com.hqch.simple.server;
 
 import org.apache.log4j.Logger;
 
-import com.hqch.simple.StringUtil;
 import com.hqch.simple.container.GameSession;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.io.RequestInfo;
+import com.hqch.simple.util.StringUtil;
 
 public class ServiceContextImpl implements ServiceContext {
 

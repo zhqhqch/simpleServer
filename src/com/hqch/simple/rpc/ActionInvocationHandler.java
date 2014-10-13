@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
-import com.hqch.simple.StringUtil;
 import com.hqch.simple.netty.io.RPCInfo;
+import com.hqch.simple.util.StringUtil;
 
 public abstract class ActionInvocationHandler implements InvocationHandler {
 
