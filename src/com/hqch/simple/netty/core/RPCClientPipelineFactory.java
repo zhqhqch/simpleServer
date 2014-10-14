@@ -4,13 +4,8 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
-import org.jboss.netty.handler.codec.frame.Delimiters;
-import org.jboss.netty.handler.codec.string.StringDecoder;
-import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.timeout.IdleStateHandler;
-import org.jboss.netty.util.CharsetUtil;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
@@ -40,9 +35,7 @@ public class RPCClientPipelineFactory implements ChannelPipelineFactory {
 	@Override
 	public final ChannelPipeline getPipeline() throws Exception {
 		return Channels.pipeline(
-				new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
-				new StringDecoder(CharsetUtil.UTF_8), 
-				new StringEncoder(CharsetUtil.UTF_8),
+				new DefaultObjectFrameDecoder(),
 				executionHandler,
 				rpcClientHandler,
 				idleStateHandler,

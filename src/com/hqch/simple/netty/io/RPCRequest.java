@@ -7,16 +7,15 @@ import net.sf.json.JSONObject;
 public class RPCRequest implements Serializable {
 
 	private static final long serialVersionUID = 9082848780680086400L;
-	private long id;
+	private String id;
 	private String targetClass;
 	private String methodName;
 	private String[] parameterTypes;
 	private Object[] parameters;
-	private boolean isAsync;
-	public long getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public String getTargetClass() {
@@ -42,12 +41,6 @@ public class RPCRequest implements Serializable {
 	}
 	public void setParameters(Object[] parameters) {
 		this.parameters = parameters;
-	}
-	public boolean isAsync() {
-		return isAsync;
-	}
-	public void setAsync(boolean isAsync) {
-		this.isAsync = isAsync;
 	}
 	@Override
 	public String toString() {

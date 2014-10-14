@@ -23,12 +23,15 @@ import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.core.RPCClientPipelineFactory;
 import com.hqch.simple.netty.io.RPCInfo;
 import com.hqch.simple.netty.io.RPCRequestThread;
-import com.hqch.simple.netty.io.RPCResult;
 import com.hqch.simple.resource.Resource;
+import com.hqch.simple.rpc.RPCManager;
 
 public class RPCClient {
 
 	private Logger logger = LoggerFactory.getLogger(RPCClient.class);
+	
+	/**请求RPC超时时间*/
+	private static final long TIME_OUT = 10000;
 	
 	/**解析socket信息线程大小*/
 	private static final int SERIALIZE_THREAD_SIZE = 10;
@@ -146,11 +149,29 @@ public class RPCClient {
 	}
 	
 	public Object invoke(RPCInfo info) throws Throwable {
-		RPCResult rsp = requestThread.sendRequest(info);
-		if (rsp.getException() != null) {
-			throw rsp.getException();
+		requestThread.sendRequest(info);
+			try {
+				boolean timeOut = info.getLatch().await(TIME_OUT, TimeUnit.MILLISECONDS);
+				if(!timeOut){
+					long endTime = System.currentTimeMillis();
+					long time = endTime - info.getStartTime();
+					if(time > TIME_OUT && info.getRet() == null){
+						throw new BizException("Request:"+ info.getTargetClass().getSimpleName() + "." + info.getMethodName()
+								+ " timeout."+info.getStartTime()+"->"
+								+ endTime+"/" + time);
+					
+					}
+				}
+					
+			} catch (Exception e) {
+				logger.error("invoke", e);
+			}
+		
+		if (info.getException() != null) {
+			throw info.getException();
 		}
-		return rsp.getObj();
+		RPCManager.getInstance().removeRPC(info.getId());
+		return info.getRet();
 	}
 
 	public Channel getChannel() {

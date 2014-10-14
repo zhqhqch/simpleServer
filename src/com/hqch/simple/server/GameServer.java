@@ -15,7 +15,6 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
-import com.hqch.simple.container.Container;
 import com.hqch.simple.container.Server;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.core.JSONServerPipelineFactory;
@@ -38,13 +37,13 @@ public class GameServer extends Server {
 	private static final int POOL_SIZE = 256;
 
 	private String protocol;
-	private Container container;
+//	private Container container;
 	private GameRequestThread requestThread;
 	private GameResponseThread responseThread;
 	private ServiceManager serviceManager;
 
 	public GameServer() {
-		this.container = Container.get();
+//		this.container = Container.get();
 		
 		this.serviceManager = new ServiceManager();
 		this.responseThread = new GameResponseThread(SERIALIZE_THREAD_SIZE);

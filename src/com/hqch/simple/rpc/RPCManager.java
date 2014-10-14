@@ -2,14 +2,19 @@ package com.hqch.simple.rpc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.hqch.simple.netty.io.RPCInfo;
 import com.hqch.simple.resource.Resource;
 import com.hqch.simple.rpc.client.RPCClient;
 
 public class RPCManager {
 
 	private static List<RPCClient> clientList;
+	
+	private static Map<String, RPCInfo> rpcMap;
 	
 	private static RPCManager manager;
 	
@@ -18,6 +23,7 @@ public class RPCManager {
 	private RPCManager(){
 		clientList = new ArrayList<RPCClient>();
 		invokeCount = new AtomicInteger();
+		rpcMap = new ConcurrentHashMap<String, RPCInfo>();
 	}
 	
 	public static RPCManager getInstance(){
@@ -57,4 +63,17 @@ public class RPCManager {
 		
 		return null;
 	}
+	
+	public void addRPC(RPCInfo info){
+		rpcMap.put(info.getId(), info);
+	}
+	
+	public void removeRPC(String id){
+		rpcMap.remove(id);
+	}
+	
+	public RPCInfo getRPC(String id){
+		return rpcMap.get(id);
+	}
+	
 }

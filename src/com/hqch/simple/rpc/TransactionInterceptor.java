@@ -6,7 +6,7 @@ import com.hqch.simple.container.InvokeInterceptor;
 import com.hqch.simple.netty.io.RPCInfo;
 import com.hqch.simple.resource.ConnectionResource;
 
-public class TransactionInterceptor implements InvokeInterceptor{
+public class TransactionInterceptor implements InvokeInterceptor {
 
 	
 	@Override

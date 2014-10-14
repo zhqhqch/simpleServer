@@ -104,7 +104,6 @@ public class RPCRequestThread {
 			return info;
 		}
 	}
-
 	
 	
 	public RPCResult sendRequest(RPCInfo info){

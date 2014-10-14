@@ -4,14 +4,9 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
-import org.jboss.netty.handler.codec.frame.Delimiters;
-import org.jboss.netty.handler.codec.string.StringDecoder;
-import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.util.CharsetUtil;
 
-import com.hqch.simple.netty.io.RPCRequestThread;
+import com.hqch.simple.rpc.RPCServerWork;
 
 /**
  * netty 处理接受客户端消息
@@ -27,19 +22,17 @@ public class RPCServerPipelineFactory implements ChannelPipelineFactory {
 	private final RPCServerHandler rpcServerHandler;
 
 	public RPCServerPipelineFactory(ExecutionHandler executionHandler,
-			DefaultChannelGroup channelGroup, RPCRequestThread requestThread) {
+			DefaultChannelGroup channelGroup, RPCServerWork serverWork) {
 		this.channelGroup = channelGroup;
 		this.executionHandler = executionHandler;
 		this.rpcServerHandler = new RPCServerHandler(this.channelGroup, 
-				requestThread);
+				serverWork);
 	}
 
 	@Override
 	public final ChannelPipeline getPipeline() throws Exception {
 		return Channels.pipeline(
-				new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
-				new StringDecoder(CharsetUtil.UTF_8), 
-				new StringEncoder(CharsetUtil.UTF_8),
+				new DefaultObjectFrameDecoder(),
 				executionHandler,
 				rpcServerHandler);
 	}

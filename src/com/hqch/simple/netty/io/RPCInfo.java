@@ -3,8 +3,11 @@ package com.hqch.simple.netty.io;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 import org.jboss.netty.channel.Channel;
+
+import com.hqch.simple.util.JavaSerializeUtils;
 
 public class RPCInfo implements Serializable {
 
@@ -23,7 +26,16 @@ public class RPCInfo implements Serializable {
 	private long useTime;
 	
 	private Channel channel;
+	private RPCRequest rpcRequest;
+	private RPCResult result;
 	
+	private long startTime;
+	
+	private transient CountDownLatch latch;
+	
+	public RPCInfo (){
+		latch = new CountDownLatch(1);
+	}
 	
 	public String getId() {
 		return id;
@@ -93,6 +105,30 @@ public class RPCInfo implements Serializable {
 	public void setUseTime(long useTime) {
 		this.useTime = useTime;
 	}
+
+	public RPCRequest getRpcRequest() {
+		return rpcRequest;
+	}
+	public void setRpcRequest(RPCRequest rpcRequest) {
+		this.rpcRequest = rpcRequest;
+	}
+	
+	public RPCResult getResult() {
+		return result;
+	}
+	public void setResult(RPCResult result) {
+		this.result = result;
+	}
+	
+	public CountDownLatch getLatch() {
+		return latch;
+	}
+	public void setLatch(CountDownLatch latch) {
+		this.latch = latch;
+	}
+	public long getStartTime() {
+		return startTime;
+	}
 	@Override
 	public String toString() {
 		return "RPCInfo [id=" + id + ", targetClass=" + targetClass
@@ -101,5 +137,30 @@ public class RPCInfo implements Serializable {
 				+ Arrays.toString(parameterTypes) + ", args="
 				+ Arrays.toString(args) + ", ret=" + ret + ", exception="
 				+ exception + ", useTime=" + useTime + "]";
+	}
+	
+	
+	public void sendRequest() {
+		channel.write(JavaSerializeUtils.getInstance().getChannelBuffer(getRequest()));
+		this.startTime = System.currentTimeMillis();
+	}
+	
+	public void sendResult(){
+		channel.write(JavaSerializeUtils.getInstance().getChannelBuffer(result));
+	}
+	
+	private RPCRequest getRequest(){
+		RPCRequest req = new RPCRequest();
+		req.setId(id);
+		req.setTargetClass(targetClass.getName());
+		req.setMethodName(methodName);
+		Class<?>pp[] = method.getParameterTypes();
+		String str[] = new String[pp.length];
+		for(int i=0;i<str.length;i++){
+			str[i] = pp[i].getName();
+		}
+		req.setParameterTypes(str);
+		req.setParameters(args);
+		return req;
 	}
 }

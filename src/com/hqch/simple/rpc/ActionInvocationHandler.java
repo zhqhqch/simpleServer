@@ -26,6 +26,8 @@ public abstract class ActionInvocationHandler implements InvocationHandler {
 		info.setMethod(method);
 		info.setParameterTypes(parameterTypes);
 		
+		RPCManager.getInstance().addRPC(info);
+		
 		Object ret = null;
 		try{
 			ret = invoke(info);

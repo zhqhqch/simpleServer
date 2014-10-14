@@ -3,8 +3,6 @@ package com.hqch.simple.netty.core;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
-import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -16,13 +14,11 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.io.RPCInfo;
 import com.hqch.simple.netty.io.RPCRequest;
-import com.hqch.simple.netty.io.RPCRequestThread;
+import com.hqch.simple.rpc.RPCServerWork;
 
 /**
  * 
- * 
  * @author hqch
- * 
  */
 public class RPCServerHandler extends SimpleChannelHandler {
 
@@ -31,12 +27,12 @@ public class RPCServerHandler extends SimpleChannelHandler {
 
 	private DefaultChannelGroup channelGroup;
 	
-	private RPCRequestThread requestThread;
+	private RPCServerWork serverWork;
 	
 	public RPCServerHandler(DefaultChannelGroup channelGroup, 
-			RPCRequestThread requestThread) {
+			RPCServerWork serverWork) {
 		this.channelGroup = channelGroup;
-		this.requestThread = requestThread;
+		this.serverWork = serverWork;
 	}
 
 	@Override
@@ -45,7 +41,7 @@ public class RPCServerHandler extends SimpleChannelHandler {
 		super.channelDisconnected(ctx, e);
 		channelGroup.remove(ctx.getChannel());
 		
-		int channelID = ctx.getChannel().getId();
+//		int channelID = ctx.getChannel().getId();
 	}
 
 	@Override
@@ -58,14 +54,19 @@ public class RPCServerHandler extends SimpleChannelHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx,
 			MessageEvent messageEvent) throws Exception {
-		String msg = (String)messageEvent.getMessage();
-		JSONObject request = JSONObject.fromObject(msg);
-		RPCRequest info = (RPCRequest)JSONObject.toBean(request, RPCRequest.class);
-//		info.setChannel(ctx.getChannel());
-//		
-//		requestThread.accept(info);
+		Object obj = messageEvent.getMessage();
+		//rpc客户端发来的心跳包
+		if(obj instanceof String){
+			return;
+		}
+		RPCRequest info = (RPCRequest) obj;
+
+		RPCInfo rpc = new RPCInfo();
+		rpc.setId(info.getId());
+		rpc.setChannel(ctx.getChannel());
+		rpc.setRpcRequest(info);
 		
-		System.out.println("##############" + info);
+		serverWork.addWork(rpc);
 	}
 
 	@Override

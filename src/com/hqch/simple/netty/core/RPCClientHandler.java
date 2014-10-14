@@ -2,9 +2,6 @@ package com.hqch.simple.netty.core;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.util.Arrays;
-
-import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -15,7 +12,7 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.hqch.simple.log.LoggerFactory;
-import com.hqch.simple.netty.io.RPCRequest;
+import com.hqch.simple.netty.io.RPCInfo;
 import com.hqch.simple.netty.io.RPCResult;
 import com.hqch.simple.rpc.RPCManager;
 
@@ -48,10 +45,14 @@ public class RPCClientHandler extends SimpleChannelHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx,
 			MessageEvent messageEvent) throws Exception {
-		String msg = (String)messageEvent.getMessage();
-		JSONObject request = JSONObject.fromObject(msg);
-		RPCRequest info = (RPCRequest)JSONObject.toBean(request, RPCResult.class);
-		logger.debug("received server messgae:" + info);
+		RPCResult result = (RPCResult)messageEvent.getMessage();
+		RPCInfo rpc = RPCManager.getInstance().getRPC(result.getId());
+		rpc.setException(result.getException());
+		rpc.setRet(result.getObj());
+		
+		rpc.getLatch().countDown();
+		
+		logger.debug("received server messgae:" + result);
 	}
 
 	@Override

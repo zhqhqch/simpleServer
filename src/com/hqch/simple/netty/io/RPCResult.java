@@ -1,6 +1,12 @@
 package com.hqch.simple.netty.io;
 
-public class RPCResult {
+import java.io.Serializable;
+
+import net.sf.json.JSONObject;
+
+public class RPCResult implements Serializable {
+
+	private static final long serialVersionUID = 6115313555381829236L;
 
 	private String id;
 	
@@ -31,4 +37,10 @@ public class RPCResult {
 	public void setException(Throwable exception) {
 		this.exception = exception;
 	}
+
+	@Override
+	public String toString() {
+		return JSONObject.fromObject(this) + "\n";
+	}
+	
 }

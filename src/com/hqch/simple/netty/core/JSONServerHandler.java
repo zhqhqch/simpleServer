@@ -44,7 +44,7 @@ public class JSONServerHandler extends SimpleChannelHandler {
 		super.channelDisconnected(ctx, e);
 		channelGroup.remove(ctx.getChannel());
 		
-		int channelID = ctx.getChannel().getId();
+//		int channelID = ctx.getChannel().getId();
 	}
 
 	@Override

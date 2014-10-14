@@ -1,11 +1,7 @@
 package com.hqch.simple.rpc.server;
 
 import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
-
-import javax.script.ScriptException;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -20,9 +16,8 @@ import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import com.hqch.simple.container.Server;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.core.RPCServerPipelineFactory;
-import com.hqch.simple.netty.io.RPCRequestThread;
 import com.hqch.simple.netty.io.RPCResponseThread;
-import com.hqch.simple.rpc.RPCInvocationHandler;
+import com.hqch.simple.rpc.RPCServerWork;
 
 public class RPCServer extends Server {
 
@@ -37,14 +32,12 @@ public class RPCServer extends Server {
 	/** 处理转发请求连接池大小 */
 	private static final int POOL_SIZE = 256;
 	
-	private RPCRequestThread requestThread;
 	private RPCResponseThread responseThread;
-	private RPCInvocationHandler handler;
+	private RPCServerWork serverWork;
 	
 	public RPCServer(){
-		
-//		this.responseThread = new RPCResponseThread(SERIALIZE_THREAD_SIZE);
-		this.requestThread = new RPCRequestThread(SERIALIZE_THREAD_SIZE);
+		this.responseThread = new RPCResponseThread(SERIALIZE_THREAD_SIZE);
+		this.serverWork = new RPCServerWork(responseThread);
 	}
 	
 	private void init(){
@@ -61,7 +54,7 @@ public class RPCServer extends Server {
 				new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MSG_SIZE,
 						MSG_SIZE));
 		ChannelPipelineFactory pipelineFactory = new RPCServerPipelineFactory(
-				executionHandler, allChannels, requestThread);;
+				executionHandler, allChannels, serverWork);
 		
 		bootstrap.setPipelineFactory(pipelineFactory);
 
