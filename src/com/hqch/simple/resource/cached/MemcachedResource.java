@@ -1,4 +1,4 @@
-package com.hqch.simple.resource;
+package com.hqch.simple.resource.cached;
 
 import net.rubyeye.xmemcached.MemcachedClient;
 import net.rubyeye.xmemcached.MemcachedClientBuilder;
@@ -9,6 +9,7 @@ import net.rubyeye.xmemcached.utils.AddrUtil;
 import org.apache.log4j.Logger;
 
 import com.hqch.simple.log.LoggerFactory;
+import com.hqch.simple.resource.Resource;
 
 public class MemcachedResource {
 

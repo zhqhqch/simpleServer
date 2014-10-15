@@ -9,6 +9,9 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -24,11 +27,13 @@ import com.hqch.simple.core.script.StartupContextImpl;
 import com.hqch.simple.exception.ScriptException;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.io.GameResponseThread;
-import com.hqch.simple.resource.MemcachedResource;
 import com.hqch.simple.resource.Resource;
+import com.hqch.simple.resource.cached.MemcachedResource;
 import com.hqch.simple.rpc.AbstractProxyFactory;
 import com.hqch.simple.rpc.RPCManager;
 import com.hqch.simple.rpc.RPCProxyFactory;
+import com.hqch.simple.server.GameRoom;
+import com.hqch.simple.server.GameRoomImpl;
 
 public class Container {
 
@@ -36,6 +41,8 @@ public class Container {
 	
 	private static final String STARTUP = "/js/startup.js";
 	private static final String RMI_BING = "rmi://%s:%s/%s";
+	
+	private static final int MAX_GAME_COUNT = 512;
 	
 	private static Map<String, MemcachedResource> resourceMap;
 	
@@ -47,15 +54,35 @@ public class Container {
 	
 	private Map<String, GameSession> allSession;
 	
+	private ScheduledThreadPoolExecutor gameScheduler = null;
+	
+	private AtomicInteger gameThreadCount = new AtomicInteger();
+	
+	private Map<String, GameRoom> gameRoomMap;
+	
 	private Container(){
 		resourceMap = new HashMap<String, MemcachedResource>();
 		allSession = new ConcurrentHashMap<String, GameSession>();
 		serverMap = new HashMap<String, Server>();
 		proxyFactoryMap = new HashMap<String, RPCProxyFactory>();
+		this.gameRoomMap = new ConcurrentHashMap<String, GameRoom>();
+		
+		gameScheduler = new ScheduledThreadPoolExecutor(MAX_GAME_COUNT, new ThreadFactory() {
+			@Override
+			public Thread newThread(Runnable r) {
+				Thread t = new Thread(r,"GameTask-"
+						+ gameThreadCount.incrementAndGet());
+				return t;
+			}
+		});
 	}
 	
 	public static Container get(){
 		return container;
+	}
+	
+	public ScheduledThreadPoolExecutor getGameThreadPool(){
+		return gameScheduler;
 	}
 	
 	public void init (){
@@ -148,5 +175,24 @@ public class Container {
 					+clusterName);
 		}
 		return (T) proxyFactory.create(clazz);
+	}
+	
+	public GameRoom createGameRoom(String roomID){
+		GameRoom gameRoom = new GameRoomImpl(roomID);
+		gameRoomMap.put(roomID, gameRoom);
+		return gameRoom;
+	}
+	
+	
+	public GameRoom getGameRoomByID(String roomID){
+		return gameRoomMap.get(roomID);
+	}
+	
+	public void destroyGameRoom(String roomID){
+		GameRoom gameRoom = getGameRoomByID(roomID);
+		if(gameRoom != null){
+			gameRoom.destroy();
+		}
+		gameRoomMap.remove(roomID);
 	}
 }

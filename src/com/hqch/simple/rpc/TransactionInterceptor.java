@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import com.hqch.simple.container.InvokeInterceptor;
 import com.hqch.simple.netty.io.RPCInfo;
-import com.hqch.simple.resource.ConnectionResource;
+import com.hqch.simple.resource.sql.ConnectionResource;
 
 public class TransactionInterceptor implements InvokeInterceptor {
 
