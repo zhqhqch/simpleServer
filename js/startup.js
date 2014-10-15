@@ -11,6 +11,8 @@ $.registerCache("cache", caches);
 var server = new GameServer();
 server.port = 10002;
 server.protocol = "json";
+server.synchroData = false;
+server.cached = "cache";
 $.initServer(server);
 
 //配置rmi提供调用的server

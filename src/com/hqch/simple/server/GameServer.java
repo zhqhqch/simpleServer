@@ -36,19 +36,17 @@ public class GameServer extends Server {
 	/** 处理转发请求连接池大小 */
 	private static final int POOL_SIZE = 256;
 
-	private String protocol;
 //	private Container container;
 	private GameRequestThread requestThread;
 	private GameResponseThread responseThread;
 	private ServiceManager serviceManager;
-
+	
 	public GameServer() {
 //		this.container = Container.get();
 		
 		this.serviceManager = new ServiceManager();
 		this.responseThread = new GameResponseThread(SERIALIZE_THREAD_SIZE);
-		this.requestThread = new GameRequestThread(SERIALIZE_THREAD_SIZE, 
-				this.responseThread, this.serviceManager);
+		this.requestThread = new GameRequestThread(SERIALIZE_THREAD_SIZE, this);
 	}
 	
 	public void init() throws ScriptException {
@@ -101,13 +99,12 @@ public class GameServer extends Server {
 	public void registerService(GameService service) {
 		serviceManager.registerService(service);
 	}
-
-	public String getProtocol() {
-		return protocol;
-	}
-
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
+	
+	public GameResponseThread getGameResponseThread(){
+		return this.responseThread;
 	}
 	
+	public ServiceManager getServiceManager(){
+		return this.serviceManager;
+	}
 }

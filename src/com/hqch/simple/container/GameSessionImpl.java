@@ -9,26 +9,35 @@ import org.jboss.netty.channel.Channel;
 
 import com.hqch.simple.netty.io.GameResponseThread;
 import com.hqch.simple.netty.io.ResponseInfo;
+import com.hqch.simple.resource.cached.MemcachedResource;
+import com.hqch.simple.server.GameServer;
 
 public class GameSessionImpl implements GameSession {
 
 	private String sessionID;
 	private Channel channel;
 	private boolean connected;
+	private boolean synchro;
 	
 	private Map<String, Object> data;
 	
 	private GameResponseThread responseThread;
 	
+	private MemcachedResource cached;
+	
 	/**不公平锁*/
 	private Lock lock = new ReentrantLock();
 	
 	public GameSessionImpl(String sessionID, Channel channel,
-			GameResponseThread responseThread){
+			GameServer server){
 		this.sessionID = sessionID;
 		this.channel = channel;
 		this.connected = true;
-		this.responseThread = responseThread;
+		this.responseThread = server.getGameResponseThread();
+		this.synchro = server.isSynchroData();
+		if(synchro){
+			this.cached = Container.get().getMemcachedByName(server.getCachedName());
+		}
 		
 		this.data = new HashMap<String, Object>();
 	}
@@ -83,12 +92,33 @@ public class GameSessionImpl implements GameSession {
 		lock.unlock();
 	}
 
-	
+	@Override
 	public void put(String key, Object obj){
-		data.put(key, obj);
+		if(synchro){
+			cached.save(key, obj);
+		} else {
+			data.put(key, obj);
+		}
 	}
 	
+	@Override
 	public void remove(String key){
-		data.remove(key);
+		if(synchro){
+			cached.remove(key);
+		} else {
+			data.remove(key);
+		}
+	}
+	
+	@Override
+	public Object get(String key){
+		Object retObj = null;
+		if(synchro){
+			retObj = cached.get(key);
+		} else {
+			retObj = data.get(key);
+		}
+		
+		return retObj;
 	}
 }

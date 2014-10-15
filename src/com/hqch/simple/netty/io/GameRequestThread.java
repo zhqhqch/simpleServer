@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.hqch.simple.container.Container;
 import com.hqch.simple.container.GameSession;
 import com.hqch.simple.log.LoggerFactory;
+import com.hqch.simple.server.GameServer;
 import com.hqch.simple.server.GameWorker;
 import com.hqch.simple.server.ServiceManager;
 
@@ -40,18 +41,18 @@ public class GameRequestThread {
 	
 	private AtomicInteger workCount = new AtomicInteger();
 	
-	private GameResponseThread responseThread;
-	
 	private ServiceManager serviceManager;
 	
 	private ThreadPoolExecutor threadPool;
 	
-	public GameRequestThread(int poolSize, GameResponseThread responseThread, ServiceManager serviceManager){
+	private GameServer server;
+	
+	public GameRequestThread(int poolSize, GameServer server){
 		this.poolSize = poolSize;
 		this.reStartThreadCount = new AtomicInteger(1);
+		this.server = server;
 		
-		this.responseThread = responseThread;
-		this.serviceManager = serviceManager;
+		this.serviceManager = server.getServiceManager();
 		
 		ThreadFactory tf=new ThreadFactory() {
 			@Override
@@ -113,7 +114,7 @@ public class GameRequestThread {
 				if(info != null){
 					GameSession session = Container.get().getGameSessionByID(info.getId());
 					if(session == null){
-						session = Container.get().createSession(info.getId(),info.getChannel(), responseThread);
+						session = Container.get().createSession(info.getId(),info.getChannel(), server);
 					}
 					info.setSession(session);
 				}

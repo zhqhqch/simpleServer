@@ -61,4 +61,12 @@ public class MemcachedResource {
 			logger.error(e.getMessage(), e);
 		}
 	}
+	
+	public void clearAll(){
+		try {
+			client.flushAll();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
 }

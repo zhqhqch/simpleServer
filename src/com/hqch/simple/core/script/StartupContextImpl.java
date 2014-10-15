@@ -2,6 +2,7 @@ package com.hqch.simple.core.script;
 
 import com.hqch.simple.container.Container;
 import com.hqch.simple.container.Server;
+import com.hqch.simple.exception.BizException;
 import com.hqch.simple.resource.Resource;
 
 public class StartupContextImpl implements StartupContext {
@@ -28,7 +29,7 @@ public class StartupContextImpl implements StartupContext {
 	}
 	
 	@Override
-	public void initServer(Server server) {
+	public void initServer(Server server) throws BizException {
 		container.initServer(server);
 	}
 	

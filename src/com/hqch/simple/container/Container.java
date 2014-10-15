@@ -3,9 +3,6 @@ package com.hqch.simple.container;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.rmi.Naming;
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,9 +21,9 @@ import org.jboss.netty.channel.Channel;
 
 import com.hqch.simple.core.script.StartupContext;
 import com.hqch.simple.core.script.StartupContextImpl;
+import com.hqch.simple.exception.BizException;
 import com.hqch.simple.exception.ScriptException;
 import com.hqch.simple.log.LoggerFactory;
-import com.hqch.simple.netty.io.GameResponseThread;
 import com.hqch.simple.resource.Resource;
 import com.hqch.simple.resource.cached.MemcachedResource;
 import com.hqch.simple.rpc.AbstractProxyFactory;
@@ -34,13 +31,14 @@ import com.hqch.simple.rpc.RPCManager;
 import com.hqch.simple.rpc.RPCProxyFactory;
 import com.hqch.simple.server.GameRoom;
 import com.hqch.simple.server.GameRoomImpl;
+import com.hqch.simple.server.GameServer;
+import com.hqch.simple.util.StringUtil;
 
 public class Container {
 
 	private  Logger logger = LoggerFactory.getLogger(Container.class);
 	
 	private static final String STARTUP = "/js/startup.js";
-	private static final String RMI_BING = "rmi://%s:%s/%s";
 	
 	private static final int MAX_GAME_COUNT = 512;
 	
@@ -113,23 +111,16 @@ public class Container {
 	public void registerCache(String name, Resource res) {
 		MemcachedResource resource = new MemcachedResource(res);
 		resourceMap.put(name, resource);
+		//清除原有cached内的所有缓存信息
+		resource.clearAll();
 		
 		logger.info("cache was init." + res);
 	}
 
-	public void registerRemote(Resource res) {
-		try {
-			String remoteService = String.format(RMI_BING, res.getHost(),
-					res.getPort(), res.getName());
-			logger.info("create remote:" + remoteService);
-			Naming.rebind(remoteService, null);
-		} catch (RemoteException e) {
-			logger.error("RemoteException", e);
-		} catch (MalformedURLException e) {
-			logger.error("MalformedURLException", e);
-		}
+	public MemcachedResource getMemcachedByName(String name){
+		return resourceMap.get(name);
 	}
-
+	
 	public void addRemoteServer(Resource res) {
 		boolean success = RPCManager.getInstance().addClient(res);
 		if(success){
@@ -143,7 +134,13 @@ public class Container {
 		}
 	}
 
-	public void initServer(Server server) {
+	public void initServer(Server server) throws BizException {
+		String serverName = server.getClass().getSimpleName();
+		if(server.isSynchroData()){
+			if(StringUtil.isNull(server.getCachedName()) || getMemcachedByName(server.getCachedName()) == null){
+				throw new BizException(serverName + " need cached");
+			}
+		}
 		try {
 			server.start();
 			serverMap.put(server.getClass().getSimpleName(), server);
@@ -161,8 +158,9 @@ public class Container {
 		return allSession.get(sessionID);
 	}
 	
-	public GameSession createSession(String sessionID, Channel channel, GameResponseThread responseThread){
-		GameSession session = new GameSessionImpl(sessionID, channel, responseThread);
+	public GameSession createSession(String sessionID, Channel channel, 
+			GameServer server){
+		GameSession session = new GameSessionImpl(sessionID, channel, server);
 		allSession.put(sessionID, session);
 		
 		return session;
