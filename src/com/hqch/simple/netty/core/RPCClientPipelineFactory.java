@@ -26,7 +26,7 @@ public class RPCClientPipelineFactory implements ChannelPipelineFactory {
 			DefaultChannelGroup channelGroup) {
 		this.channelGroup = channelGroup;
 		this.executionHandler = executionHandler;
-		this.rpcClientHandler = new RPCClientHandler(this.channelGroup);
+		this.rpcClientHandler = new RPCClientHandler(this.channelGroup,name);
 		Timer timer = new HashedWheelTimer();
 		this.idleStateHandler = new IdleStateHandler(timer, 60, 60,0);
 		this.heartbeatHandler = new HeartbeatHandler(name);

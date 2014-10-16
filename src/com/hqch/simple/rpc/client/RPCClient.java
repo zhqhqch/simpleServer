@@ -97,15 +97,20 @@ public class RPCClient {
 				connect();
 			}
 		} catch (Throwable e) {
-			try {
-				connect();
-			} catch (Exception e1) {
-				logger.fatal("name:" + name + " unavailable." + e.getMessage());
+			for(int i = 0;i < 3; i++){
+				try {
+					connect();
+					if(isConnected){
+						break;
+					}
+				} catch (Exception e1) {
+					logger.fatal("name:" + name + " unavailable." + e.getMessage());
+				}
 			}
 		}
 	}
 	
-	public void connect() throws BizException {
+	private void connect() throws BizException {
 		this.latch = new CountDownLatch(1);
 		
 		ClientBootstrap bootstrap = new ClientBootstrap(
@@ -161,7 +166,17 @@ public class RPCClient {
 		return isConnected;
 	}
 	
+	public void disConnected() {
+		isConnected = false;
+	}
+	
 	public Object invoke(RPCInfo info) throws Throwable {
+		if(!isConnected){
+			connect();
+		}
+		
+		info.setChannel(channel);
+		
 		requestThread.sendRequest(info);
 			try {
 				boolean timeOut = info.getLatch().await(RPC_TIME_OUT, TimeUnit.MILLISECONDS);
@@ -187,7 +202,7 @@ public class RPCClient {
 		return info.getRet();
 	}
 
-	public Channel getChannel() {
-		return channel;
+	public String getName(){
+		return this.name;
 	}
 }

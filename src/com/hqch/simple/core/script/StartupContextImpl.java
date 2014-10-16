@@ -3,7 +3,9 @@ package com.hqch.simple.core.script;
 import com.hqch.simple.container.Container;
 import com.hqch.simple.container.Server;
 import com.hqch.simple.exception.BizException;
+import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.resource.Resource;
+import com.hqch.simple.resource.sql.ConnectionResource;
 
 public class StartupContextImpl implements StartupContext {
 	
@@ -14,7 +16,7 @@ public class StartupContextImpl implements StartupContext {
 	}
 	
 	@Override
-	public void registerCache(String name, Resource res) {
+	public void registerCache(String name, Resource res) throws BizException {
 		container.registerCache(name, res);
 	}
 	
@@ -24,13 +26,19 @@ public class StartupContextImpl implements StartupContext {
 	}
 	
 	@Override
-	public void printLog(String msg) {
-		System.out.println(msg);
+	public void setLogLevel(String level){
+		LoggerFactory.getInstance().setLogLevel(level);
 	}
 	
 	@Override
 	public void initServer(Server server) throws BizException {
 		container.initServer(server);
+	}
+
+	@Override
+	public void registerResource(String name, ConnectionResource dataSource)
+			throws BizException {
+		container.registerResource(name, dataSource);
 	}
 	
 }

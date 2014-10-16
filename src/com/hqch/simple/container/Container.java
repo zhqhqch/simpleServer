@@ -14,6 +14,7 @@ import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
 import org.apache.log4j.Logger;
@@ -22,10 +23,11 @@ import org.jboss.netty.channel.Channel;
 import com.hqch.simple.core.script.StartupContext;
 import com.hqch.simple.core.script.StartupContextImpl;
 import com.hqch.simple.exception.BizException;
-import com.hqch.simple.exception.ScriptException;
+import com.hqch.simple.exception.DeathException;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.resource.Resource;
 import com.hqch.simple.resource.cached.MemcachedResource;
+import com.hqch.simple.resource.sql.ConnectionResource;
 import com.hqch.simple.rpc.AbstractProxyFactory;
 import com.hqch.simple.rpc.RPCManager;
 import com.hqch.simple.rpc.RPCProxyFactory;
@@ -42,7 +44,8 @@ public class Container {
 	
 	private static final int MAX_GAME_COUNT = 512;
 	
-	private static Map<String, MemcachedResource> resourceMap;
+	private static Map<String, MemcachedResource> cachedSourceMap;
+	private static Map<String, ConnectionResource> dataSourceMap;
 	
 	private static Map<String, RPCProxyFactory> proxyFactoryMap;
 	
@@ -59,7 +62,8 @@ public class Container {
 	private Map<String, GameRoom> gameRoomMap;
 	
 	private Container(){
-		resourceMap = new HashMap<String, MemcachedResource>();
+		cachedSourceMap = new HashMap<String, MemcachedResource>();
+		dataSourceMap = new HashMap<String, ConnectionResource>();
 		allSession = new ConcurrentHashMap<String, GameSession>();
 		serverMap = new HashMap<String, Server>();
 		proxyFactoryMap = new HashMap<String, RPCProxyFactory>();
@@ -103,14 +107,15 @@ public class Container {
 		ssc.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
 		try {
 			engine.eval(new InputStreamReader(is), ssc);
-		} catch (javax.script.ScriptException e) {
-			throw new ScriptException(e.getMessage(),e);
+		} catch (ScriptException e){
+			logger.error("initScript", e);
+			throw new DeathException("initScript", e);
 		}
 	}
 	
-	public void registerCache(String name, Resource res) {
+	public void registerCache(String name, Resource res) throws BizException {
 		MemcachedResource resource = new MemcachedResource(res);
-		resourceMap.put(name, resource);
+		cachedSourceMap.put(name, resource);
 		//清除原有cached内的所有缓存信息
 		resource.clearAll();
 		
@@ -118,7 +123,7 @@ public class Container {
 	}
 
 	public MemcachedResource getMemcachedByName(String name){
-		return resourceMap.get(name);
+		return cachedSourceMap.get(name);
 	}
 	
 	public void addRemoteServer(Resource res) {
@@ -146,7 +151,7 @@ public class Container {
 			serverMap.put(server.getClass().getSimpleName(), server);
 		} catch (Exception e) {
 			logger.error("server init was error.", e);
-			System.exit(0);
+			throw new DeathException("server init was error.", e);
 		}
 	}
 	
@@ -192,5 +197,14 @@ public class Container {
 			gameRoom.destroy();
 		}
 		gameRoomMap.remove(roomID);
+	}
+
+	public void registerResource(String name, ConnectionResource dataSource) {
+		dataSourceMap.put(name, dataSource);
+		logger.info("register datasource:" + name + "--->" + dataSource.getClass().getSimpleName());
+	}
+	
+	public ConnectionResource getDataSourceByName(String name){
+		return dataSourceMap.get(name);
 	}
 }

@@ -75,5 +75,14 @@ public class RPCManager {
 	public RPCInfo getRPC(String id){
 		return rpcMap.get(id);
 	}
+
+	public RPCClient getClientByName(String name) {
+		for(RPCClient client : clientList){
+			if(name.equals(client.getName())){
+				return client;
+			}
+		}
+		return null;
+	}
 	
 }

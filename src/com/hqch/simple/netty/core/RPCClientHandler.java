@@ -23,9 +23,11 @@ public class RPCClientHandler extends SimpleChannelHandler {
 			.getLogger(RPCClientHandler.class);
 
 	private DefaultChannelGroup channelGroup;
+	private String name;
 
-	public RPCClientHandler(DefaultChannelGroup channelGroup) {
+	public RPCClientHandler(DefaultChannelGroup channelGroup, String name) {
 		this.channelGroup = channelGroup;
+		this.name = name;
 	}
 
 	@Override
@@ -33,6 +35,7 @@ public class RPCClientHandler extends SimpleChannelHandler {
 			ChannelStateEvent e) throws Exception {
 		super.channelDisconnected(ctx, e);
 		channelGroup.remove(ctx.getChannel());
+		RPCManager.getInstance().getClientByName(name).disConnected();
 	}
 
 	@Override

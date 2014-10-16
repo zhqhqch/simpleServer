@@ -7,6 +7,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
+
+import com.hqch.simple.exception.BizException;
+import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.io.RPCInfo;
 import com.hqch.simple.netty.io.RPCRequest;
 import com.hqch.simple.netty.io.RPCResponseThread;
@@ -15,6 +19,8 @@ import com.hqch.simple.util.ClassUtil;
 
 public class RPCServerWork {
 
+	private Logger logger = LoggerFactory.getLogger(RPCServerWork.class);
+	
 	/**处理RPC逻辑线程数*/
 	private static int POOL_SIZE = 512;
 	
@@ -50,13 +56,13 @@ public class RPCServerWork {
 			try {
 				RPCInfo info = executeQueen.poll(2, TimeUnit.SECONDS);
 				execute(info);
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	private void execute(RPCInfo info) {
+	private void execute(RPCInfo info) throws BizException {
 		RPCResult result = new RPCResult();
 		try {
 			RPCRequest request = info.getRpcRequest();
@@ -65,6 +71,7 @@ public class RPCServerWork {
 			Class<?>[] parameterTypes = ClassUtil.getParameterTypes(request.getParameterTypes());
 			Object[] params = request.getParameters();
 			Method method = obj.getClass().getMethod(request.getMethodName(), parameterTypes);
+			info.setMethod(method);
 			
 			transactionInterceptor.beforeInvoke(info);
 			
@@ -77,6 +84,7 @@ public class RPCServerWork {
 		} catch (Exception ie) {
 			result.setException(ie.getCause());
 			transactionInterceptor.onError(info);
+			logger.error("execute", ie);
 		} finally {
 			transactionInterceptor.endInvoke(info);
 		}

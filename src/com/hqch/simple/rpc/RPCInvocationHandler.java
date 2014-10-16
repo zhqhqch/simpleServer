@@ -8,10 +8,6 @@ public class RPCInvocationHandler extends ActionInvocationHandler {
 	@Override
 	public Object invoke(RPCInfo info) throws Throwable {
 		RPCClient client = RPCManager.getInstance().getClient();
-		if(!client.isConnected()){
-			client.connect();
-		}
-		info.setChannel(client.getChannel());
 		return client.invoke(info);
 	}
 
