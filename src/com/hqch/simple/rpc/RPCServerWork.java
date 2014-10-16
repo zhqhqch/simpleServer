@@ -73,12 +73,13 @@ public class RPCServerWork {
 			Method method = obj.getClass().getMethod(request.getMethodName(), parameterTypes);
 			info.setMethod(method);
 			
+			result.setId(request.getId());
+			info.setResult(result);
+			
 			transactionInterceptor.beforeInvoke(info);
 			
 			Object objValue = method.invoke(obj, params);
 			result.setObj(objValue);
-			result.setId(request.getId());
-			info.setResult(result);
 			
 			transactionInterceptor.afterInvoke(info);
 		} catch (Exception ie) {
