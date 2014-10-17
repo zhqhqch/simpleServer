@@ -37,7 +37,6 @@ public class RPCRequestThread {
 	
 	private AtomicInteger workCount = new AtomicInteger();
 	
-	
 	private ThreadPoolExecutor threadPool;
 	
 	public RPCRequestThread(int poolSize){
@@ -85,9 +84,6 @@ public class RPCRequestThread {
 				if(info != null){
 					RPCWorker gw = new RPCWorker(info);
 					threadPool.execute(gw);
-					
-					count.getAndIncrement();
-					System.out.println(count.get());
 				}
 			}
 		}

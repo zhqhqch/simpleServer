@@ -37,7 +37,7 @@ public class GameRequestThread {
 	
 	private int poolSize;
 	
-	private AtomicInteger count = new AtomicInteger();
+	private AtomicInteger threadCount = new AtomicInteger();
 	
 	private AtomicInteger workCount = new AtomicInteger();
 	
@@ -77,7 +77,7 @@ public class GameRequestThread {
 			@Override
 			public Thread newThread(Runnable r) {
 				Thread t = new Thread(r,"RequestThread-"
-						+ count.incrementAndGet());
+						+ threadCount.incrementAndGet());
 				return t;
 			}
 		});
@@ -95,13 +95,6 @@ public class GameRequestThread {
 				if(info != null){
 					GameWorker gw = new GameWorker(serviceManager,info);
 					threadPool.execute(gw);
-//					try {
-//						serviceManager.executeService(info);
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-					count.getAndIncrement();
-					System.out.println(count.get());
 				}
 			}
 		}
