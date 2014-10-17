@@ -17,6 +17,7 @@ public class StartupContextImpl implements StartupContext {
 	
 	@Override
 	public void registerCache(String name, Resource res) throws BizException {
+		res.setName(name);
 		container.registerCache(name, res);
 	}
 	

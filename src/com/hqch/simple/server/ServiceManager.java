@@ -67,13 +67,10 @@ public class ServiceManager {
 			logger.error("can't found service:"+serviceID);
 			throw new ServiceException("can't found service:" + serviceID);
 		}
-		
+		long start = System.currentTimeMillis();
 		GameService service = getServiceInstance(serviceID);
-		
 		ServiceContext context = new ServiceContextImpl(request);
-		
 		service.beforeService(context);
-		
 		if(method.isAnnotationPresent(Synchronized.class)){
 			try{
 				request.getSession().lock();
@@ -86,6 +83,10 @@ public class ServiceManager {
 		}
 		
 		service.afterService(context);
+		
+		if(logger.isDebugEnabled()){
+			logger.warn(serviceID + "---->" + (System.currentTimeMillis() - start));
+		}
 	}
 	
 	private void invokeService(Method method, GameService service, ServiceContext context) throws Exception {
