@@ -34,12 +34,12 @@ public class ServiceContextImpl implements ServiceContext {
 	
 	@Override
 	public String getAsString(String key) {
-		return String.valueOf(request.getData().get(key));
+		return String.valueOf(request.getParamByKey(key));
 	}
 
 	@Override
 	public String getAsString(boolean require, String key) {
-		String retStr = String.valueOf(request.getData().get(key));
+		String retStr = String.valueOf(request.getParamByKey(key));
 		if(require && StringUtil.isNull(retStr)){
 			throw new IllegalArgumentException("key:"+key+" can not be null.");
 		}
@@ -48,7 +48,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Integer getAsInt(String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(StringUtil.isNull(temp)){
 			return 0;
 		}
@@ -57,7 +57,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Integer getAsInt(boolean require, String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(require && StringUtil.isNull(temp)){
 			throw new IllegalArgumentException("key:"+key+" can not be null.");
 		} else if(StringUtil.isNull(temp)){
@@ -68,7 +68,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Long getAsLong(String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(StringUtil.isNull(temp)){
 			return 0L;
 		}
@@ -77,7 +77,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Long getAsLong(boolean require, String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(require && StringUtil.isNull(temp)){
 			throw new IllegalArgumentException("key:"+key+" can not be null.");
 		} else if(StringUtil.isNull(temp)){
@@ -88,7 +88,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Double getAsDouble(String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(StringUtil.isNull(temp)){
 			return 0D;
 		}
@@ -97,7 +97,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Double getAsDouble(boolean require, String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(require && StringUtil.isNull(temp)){
 			throw new IllegalArgumentException("key:"+key+" can not be null.");
 		} else if(StringUtil.isNull(temp)){
@@ -108,7 +108,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Float getAsFloat(String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(StringUtil.isNull(temp)){
 			return 0F;
 		}
@@ -117,7 +117,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Float getAsFloat(boolean require, String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(require && StringUtil.isNull(temp)){
 			throw new IllegalArgumentException("key:"+key+" can not be null.");
 		} else if(StringUtil.isNull(temp)){
@@ -128,7 +128,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Boolean getAsBoolean(String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(StringUtil.isNull(temp)){
 			return false;
 		}
@@ -137,7 +137,7 @@ public class ServiceContextImpl implements ServiceContext {
 
 	@Override
 	public Boolean getAsBoolean(boolean require, String key) {
-		String temp = String.valueOf(request.getData().get(key));
+		String temp = String.valueOf(request.getParamByKey(key));
 		if(require && StringUtil.isNull(temp)){
 			throw new IllegalArgumentException("key:"+key+" can not be null.");
 		} else if(StringUtil.isNull(temp)){

@@ -11,6 +11,10 @@ public class ResponseInfo {
 	private String serviceID;
 	
 	private Object data;
+	
+	public ResponseInfo(Channel channel){
+		this.channel = channel;
+	}
 
 	public String getServiceID() {
 		return serviceID;
@@ -26,10 +30,6 @@ public class ResponseInfo {
 
 	public void setData(Object data) {
 		this.data = data;
-	}
-	
-	public void setChannel(Channel channel) {
-		this.channel = channel;
 	}
 	
 	//通信使用String类型，发送内容后必须加\n

@@ -1,7 +1,7 @@
 package com.hqch.simple.netty.io;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jboss.netty.channel.Channel;
 
@@ -17,12 +17,12 @@ public class RequestInfo {
 	
 	private String sn;
 	
-	private Map<String, Object> data;
+	private List<RequestParam> data;
 	
 	private GameSession session;
 	
 	public RequestInfo(){
-		this.data = new HashMap<String, Object>();
+		this.data = new ArrayList<RequestParam>();
 	}
 	
 	public Channel getChannel() {
@@ -56,12 +56,13 @@ public class RequestInfo {
 	public void setSn(String sn) {
 		this.sn = sn;
 	}
+	
 
-	public Map<String, Object> getData() {
+	public List<RequestParam> getData() {
 		return data;
 	}
 
-	public void setData(Map<String, Object> data) {
+	public void setData(List<RequestParam> data) {
 		this.data = data;
 	}
 
@@ -73,6 +74,16 @@ public class RequestInfo {
 		this.session = session;
 	}
 
+	public Object getParamByKey(String key){
+		for(RequestParam param : data){
+			if(param.getKey().equals(key)){
+				return param.getObj();
+			}
+		}
+		
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		return "RequestInfo [id=" + id + ", time=" + time + ", sn=" + sn

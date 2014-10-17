@@ -18,6 +18,7 @@ import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import com.hqch.simple.container.Server;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.core.JSONServerPipelineFactory;
+import com.hqch.simple.netty.core.ProtobufServerPipelineFactory;
 import com.hqch.simple.netty.io.GameRequestThread;
 import com.hqch.simple.netty.io.GameResponseThread;
 
@@ -26,6 +27,7 @@ public class GameServer extends Server {
 	private Logger logger = LoggerFactory.getLogger(GameServer.class);
 	
 	private static final String PROTOCOL_JSON = "json";
+	private static final String PROTOCOL_PROTOBUF = "protobuf";
 	
 	/**解析socket信息线程大小*/
 	private static final int SERIALIZE_THREAD_SIZE = 10;
@@ -66,6 +68,9 @@ public class GameServer extends Server {
 		
 		if(PROTOCOL_JSON.equalsIgnoreCase(protocol)){
 			pipelineFactory = new JSONServerPipelineFactory(
+					executionHandler, allChannels, requestThread);
+		} else if(PROTOCOL_PROTOBUF.equalsIgnoreCase(protocol)){
+			pipelineFactory = new ProtobufServerPipelineFactory(
 					executionHandler, allChannels, requestThread);
 		} else {
 			throw new ScriptException("protocol was error.[" + protocol + "]");

@@ -2,10 +2,6 @@ package com.hqch.simple.netty.core;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.util.HashMap;
-import java.util.Map;
-
-import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -18,7 +14,6 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.io.GameRequestThread;
 import com.hqch.simple.netty.io.RequestInfo;
-import com.hqch.simple.netty.io.RequestParam;
 
 /**
  * 
@@ -26,23 +21,19 @@ import com.hqch.simple.netty.io.RequestParam;
  * @author hqch
  * 
  */
-public class JSONServerHandler extends SimpleChannelHandler {
+public class ProtobufServerHandler extends SimpleChannelHandler {
 
 	private static Logger logger = LoggerFactory
-			.getLogger(JSONServerHandler.class);
+			.getLogger(ProtobufServerHandler.class);
 
 	private DefaultChannelGroup channelGroup;
 	
 	private GameRequestThread requestThread;
 	
-	private Map<String, Class<?>> classMap;
-	
-	public JSONServerHandler(DefaultChannelGroup channelGroup, 
+	public ProtobufServerHandler(DefaultChannelGroup channelGroup, 
 			GameRequestThread requestThread) {
 		this.channelGroup = channelGroup;
 		this.requestThread = requestThread;
-		this.classMap = new HashMap<String, Class<?>>();
-		this.classMap.put("data", RequestParam.class);
 	}
 
 	@Override
@@ -64,9 +55,7 @@ public class JSONServerHandler extends SimpleChannelHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx,
 			MessageEvent messageEvent) throws Exception {
-		String msg = (String)messageEvent.getMessage();
-		JSONObject request = JSONObject.fromObject(msg);
-		RequestInfo info = (RequestInfo)JSONObject.toBean(request, RequestInfo.class, classMap);
+		RequestInfo info = (RequestInfo)messageEvent.getMessage();
 		info.setChannel(ctx.getChannel());
 		
 		requestThread.accept(info);

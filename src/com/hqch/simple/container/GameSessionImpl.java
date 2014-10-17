@@ -74,8 +74,7 @@ public class GameSessionImpl implements GameSession {
 
 	@Override
 	public void sendMessage(String serviceID, Object message) {
-		ResponseInfo info = new ResponseInfo();
-		info.setChannel(channel);
+		ResponseInfo info = new ResponseInfo(channel);
 		info.setServiceID(serviceID);
 		info.setData(message);
 		
