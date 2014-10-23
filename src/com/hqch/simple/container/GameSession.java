@@ -1,5 +1,7 @@
 package com.hqch.simple.container;
 
+import org.jboss.netty.channel.Channel;
+
 public interface GameSession {
 
 	public String getSessionID();
@@ -22,5 +24,5 @@ public interface GameSession {
 
 	public boolean check();
 
-	public void request();
+	public void request(Channel channel);
 }

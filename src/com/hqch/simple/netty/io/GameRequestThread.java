@@ -107,7 +107,7 @@ public class GameRequestThread {
 					if(session == null){
 						session = Container.get().createSession(info.getId(),info.getChannel(), server);
 					} else {
-						session.request();
+						session.request(info.getChannel());
 					}
 					info.setSession(session);
 				}

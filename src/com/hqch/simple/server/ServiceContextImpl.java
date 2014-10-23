@@ -29,7 +29,7 @@ public class ServiceContextImpl implements ServiceContext {
 			logger.warn(serviceID + " can't send, becase session was null");
 			return;
 		}
-		getSession().sendMessage(serviceID, message);
+		session.sendMessage(serviceID, message);
 	}
 	
 	@Override

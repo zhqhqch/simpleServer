@@ -143,7 +143,8 @@ public class GameSessionImpl implements GameSession {
 	}
 
 	@Override
-	public void request() {
+	public void request(Channel channel) {
+		this.channel = channel;
 		this.lastRequestTime = System.currentTimeMillis();
 	}
 }
