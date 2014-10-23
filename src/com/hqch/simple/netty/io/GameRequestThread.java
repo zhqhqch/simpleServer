@@ -90,7 +90,6 @@ public class GameRequestThread {
 		public void run() {
 			while(true){
 				RequestInfo info = waitForProcess();
-				logger.debug(receivedQueen.size() + "-->received clinet message:" + info);
 				
 				if(info != null){
 					GameWorker gw = new GameWorker(serviceManager,info);
@@ -103,11 +102,12 @@ public class GameRequestThread {
 			RequestInfo info = null;
 			try {
 				info = receivedQueen.poll(2, TimeUnit.SECONDS);
-				logger.debug(receivedQueen.size() + "@@@@@@@@@@" + info);
 				if(info != null){
 					GameSession session = Container.get().getGameSessionByID(info.getId());
 					if(session == null){
 						session = Container.get().createSession(info.getId(),info.getChannel(), server);
+					} else {
+						session.request();
 					}
 					info.setSession(session);
 				}
@@ -123,6 +123,9 @@ public class GameRequestThread {
 	
 	public void accept(RequestInfo info){
 		if (info != null) {
+			
+			logger.debug("request----->" + info);
+			
 			try {
 				boolean success = receivedQueen.offer(info, 2,
 						TimeUnit.SECONDS);
@@ -139,7 +142,6 @@ public class GameRequestThread {
 				logger.error("addSocketMessage",e);
 			}
 			
-			logger.debug("client msg len:" + receivedQueen.size());
 		}
 	}
 }

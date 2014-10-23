@@ -17,4 +17,10 @@ public interface GameSession {
 	public Object get(String key);
 	
 	public void remove(String key);
+	
+	public void heartbeat();
+
+	public boolean check();
+
+	public void request();
 }

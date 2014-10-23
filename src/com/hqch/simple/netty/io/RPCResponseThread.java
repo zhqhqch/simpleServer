@@ -55,7 +55,6 @@ public class RPCResponseThread {
 				RPCInfo info = sendQueen.poll(2, TimeUnit.SECONDS);
 				if(info != null){
 					info.sendResult();
-					logger.debug(sendQueen.size() + "-->send clinet message:" + info.getResult());
 				}
 			} catch (Exception e) {
 				logger.error("waitForProcessMessage",e);
@@ -80,7 +79,6 @@ public class RPCResponseThread {
 				logger.error("addSocketMessage",e);
 			}
 			
-			logger.debug("send msg len:" + sendQueen.size());
 		}
 	}
 }

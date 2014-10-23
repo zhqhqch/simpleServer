@@ -1,0 +1,17 @@
+package proto;
+
+option java_package = "com.hqch.simple.netty.io";
+option java_outer_classname = "RequestInfoProtoBuf";
+
+
+message RequestParam {
+	required string key = 3;
+	required string value = 4;
+}
+
+message Request {
+	required string id = 1;
+	required string sn = 2;
+	
+	repeated RequestParam data = 3;
+}

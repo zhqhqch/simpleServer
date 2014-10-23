@@ -2,6 +2,7 @@ package com.hqch.simple.container;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -14,6 +15,8 @@ import com.hqch.simple.server.GameServer;
 
 public class GameSessionImpl implements GameSession {
 
+	private static final int DISCONN_TIME = 1000 * 60;
+	
 	private String sessionID;
 	private Channel channel;
 	private boolean connected;
@@ -24,6 +27,9 @@ public class GameSessionImpl implements GameSession {
 	private GameResponseThread responseThread;
 	
 	private MemcachedResource cached;
+	
+	private AtomicLong heartbeatCount;
+	private long lastRequestTime;
 	
 	/**不公平锁*/
 	private Lock lock = new ReentrantLock();
@@ -40,6 +46,8 @@ public class GameSessionImpl implements GameSession {
 		}
 		
 		this.data = new HashMap<String, Object>();
+		this.heartbeatCount = new AtomicLong(1);
+		this.lastRequestTime = System.currentTimeMillis();
 	}
 	
 	public Channel getChannel() {
@@ -119,5 +127,23 @@ public class GameSessionImpl implements GameSession {
 		}
 		
 		return retObj;
+	}
+	
+	public void heartbeat(){
+		heartbeatCount.incrementAndGet();
+		this.lastRequestTime = System.currentTimeMillis();
+	}
+
+	@Override
+	public boolean check() {
+		if(System.currentTimeMillis() - lastRequestTime > DISCONN_TIME){
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void request() {
+		this.lastRequestTime = System.currentTimeMillis();
 	}
 }

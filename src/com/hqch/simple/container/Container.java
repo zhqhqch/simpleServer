@@ -3,8 +3,11 @@ package com.hqch.simple.container;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -61,6 +64,8 @@ public class Container {
 	
 	private Map<String, GameRoom> gameRoomMap;
 	
+	private List<Notification> notifList;
+	
 	private Container(){
 		cachedSourceMap = new HashMap<String, MemcachedResource>();
 		dataSourceMap = new HashMap<String, ConnectionResource>();
@@ -68,6 +73,7 @@ public class Container {
 		serverMap = new HashMap<String, Server>();
 		proxyFactoryMap = new HashMap<String, RPCProxyFactory>();
 		this.gameRoomMap = new ConcurrentHashMap<String, GameRoom>();
+		this.notifList = new ArrayList<Notification>();
 		
 		gameScheduler = new ScheduledThreadPoolExecutor(MAX_GAME_COUNT, new ThreadFactory() {
 			@Override
@@ -206,5 +212,40 @@ public class Container {
 	
 	public ConnectionResource getDataSourceByName(String name){
 		return dataSourceMap.get(name);
+	}
+	
+	
+	public void listener(Notification notif) {
+		notifList.add(notif);
+	}
+	
+	public void sendNotification(GameSession session){
+		if(notifList.size() == 0){
+			return;
+		}
+		for(Notification notif : notifList){
+			notif.handler(session);
+		}
+	}
+
+	public List<String> checkSession() {
+		List<String> retList = new ArrayList<String>();
+		GameSession session = null;
+		for(Entry<String, GameSession> entry : allSession.entrySet()){
+			session = entry.getValue();
+			if(session.check()){
+				retList.add(session.getSessionID());
+			}
+		}
+		return retList;
+	}
+
+	public void disconnSession(List<String> disconnectSessionList) {
+		for(String sessionID : disconnectSessionList){
+			GameSession session = allSession.remove(sessionID);
+			if(session != null){
+				sendNotification(session);
+			}
+		}
 	}
 }

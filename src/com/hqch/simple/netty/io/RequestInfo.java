@@ -74,6 +74,10 @@ public class RequestInfo {
 		this.session = session;
 	}
 
+	public void put(String key, Object value){
+		this.data.add(new RequestParam(key, value));
+	}
+	
 	public Object getParamByKey(String key){
 		for(RequestParam param : data){
 			if(param.getKey().equals(key)){

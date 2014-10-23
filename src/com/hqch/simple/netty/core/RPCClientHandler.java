@@ -54,8 +54,6 @@ public class RPCClientHandler extends SimpleChannelHandler {
 		rpc.setRet(result.getObj());
 		
 		rpc.getLatch().countDown();
-		
-		logger.debug("received server messgae:" + result);
 	}
 
 	@Override

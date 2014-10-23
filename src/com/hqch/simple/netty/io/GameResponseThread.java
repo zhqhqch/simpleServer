@@ -57,7 +57,6 @@ public class GameResponseThread {
 				logger.error("addSocketMessage",e);
 			}
 			
-			logger.debug("send msg len:" + sendQueen.size());
 		}
 	}
 	
@@ -75,7 +74,7 @@ public class GameResponseThread {
 				ResponseInfo info = sendQueen.poll(2, TimeUnit.SECONDS);
 				if(info != null){
 					info.write();
-					logger.debug(sendQueen.size() + "-->send clinet message:" + info);
+					logger.debug("response----->" + info);
 				}
 			} catch (Exception e) {
 				logger.error("waitForProcessMessage",e);

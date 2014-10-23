@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import com.hqch.simple.container.Container;
 import com.hqch.simple.container.GameSession;
+import com.hqch.simple.container.ScheduledTask;
 
 public class GameRoomImpl implements GameRoom {
 

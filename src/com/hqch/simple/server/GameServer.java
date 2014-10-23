@@ -2,6 +2,7 @@ package com.hqch.simple.server;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.script.ScriptException;
 
@@ -21,6 +22,8 @@ import com.hqch.simple.netty.core.JSONServerPipelineFactory;
 import com.hqch.simple.netty.core.ProtobufServerPipelineFactory;
 import com.hqch.simple.netty.io.GameRequestThread;
 import com.hqch.simple.netty.io.GameResponseThread;
+import com.hqch.simple.thread.CheckSessionTask;
+import com.hqch.simple.thread.ThreadManager;
 
 public class GameServer extends Server {
 
@@ -42,6 +45,7 @@ public class GameServer extends Server {
 	private GameRequestThread requestThread;
 	private GameResponseThread responseThread;
 	private ServiceManager serviceManager;
+	private ThreadManager threadManager;
 	
 	public GameServer() {
 //		this.container = Container.get();
@@ -49,6 +53,9 @@ public class GameServer extends Server {
 		this.serviceManager = new ServiceManager();
 		this.responseThread = new GameResponseThread(SERIALIZE_THREAD_SIZE);
 		this.requestThread = new GameRequestThread(SERIALIZE_THREAD_SIZE, this);
+		
+		this.threadManager = new ThreadManager();
+		this.threadManager.registerTask(new CheckSessionTask(5, 30, TimeUnit.SECONDS));
 	}
 	
 	public void init() throws ScriptException {

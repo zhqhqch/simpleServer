@@ -79,8 +79,6 @@ public class RPCRequestThread {
 		public void run() {
 			while(true){
 				RPCInfo info = waitForProcess();
-				logger.debug(receivedQueen.size() + "-->received clinet message:" + info);
-				
 				if(info != null){
 					RPCWorker gw = new RPCWorker(info);
 					threadPool.execute(gw);
@@ -92,7 +90,6 @@ public class RPCRequestThread {
 			RPCInfo info = null;
 			try {
 				info = receivedQueen.poll(2, TimeUnit.SECONDS);
-				logger.debug(receivedQueen.size() + "@@@@@@@@@@" + info);
 			} catch (InterruptedException e) {
 				logger.error("waitForProcessMessage",e);
 			}
@@ -118,8 +115,6 @@ public class RPCRequestThread {
 		} catch (InterruptedException e) {
 			logger.error("addSocketMessage",e);
 		}
-		
-		logger.debug("client msg len:" + receivedQueen.size());
 		
 		RPCResult result = new RPCResult();
 		result.setId(info.getId());
