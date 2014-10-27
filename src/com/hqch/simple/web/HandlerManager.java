@@ -6,10 +6,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
+
+import com.hqch.simple.log.LoggerFactory;
 
 public class HandlerManager {
 
+	private Logger logger = LoggerFactory.getLogger(HandlerManager.class);
+	
 	private final static int POOL_SIZE = 256;
 	
 	private Map<String, HttpHandler> handlerMap;
@@ -41,12 +46,14 @@ public class HandlerManager {
 		
 		if(path.length != 2){
 			request.error(HttpResponseStatus.INTERNAL_SERVER_ERROR, "request error:" + url);
+			logger.warn("request error:" + url);
 			return;
 		}
 		
 		HttpHandler handler = handlerMap.get(path[0]);
 		if(handler == null){
 			request.error(HttpResponseStatus.NOT_FOUND, "can't found servlet:" + url);
+			logger.warn("can't found servlet:" + url);
 			return;
 		}
 		
