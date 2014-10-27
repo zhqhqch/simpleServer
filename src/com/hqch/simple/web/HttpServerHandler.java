@@ -35,10 +35,10 @@ import com.hqch.simple.log.LoggerFactory;
  * @author hqch
  * 
  */
-public class MonitorServerHandler extends SimpleChannelHandler {
+public class HttpServerHandler extends SimpleChannelHandler {
 
 	private static Logger logger = LoggerFactory
-			.getLogger(MonitorServerHandler.class);
+			.getLogger(HttpServerHandler.class);
 	@SuppressWarnings("unused")
 	private HttpRequest request;
 	private boolean readingChunks;
@@ -47,7 +47,7 @@ public class MonitorServerHandler extends SimpleChannelHandler {
 	
 	private Map<Integer,HttpMessage> msgMap = new ConcurrentHashMap<Integer, HttpMessage>();
 	
-	public MonitorServerHandler(HandlerManager handlerManager){
+	public HttpServerHandler(HandlerManager handlerManager){
 		this.handlerManager = handlerManager;
 	}
 	

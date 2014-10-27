@@ -31,7 +31,7 @@ public class HttpServerPipelineFactory implements ChannelPipelineFactory {
 				new HttpResponseEncoder(),
 				new ChunkedWriteHandler(),
 				new HttpContentCompressor(),
-				new MonitorServerHandler(handlerManager),
+				new HttpServerHandler(handlerManager),
 				executionHandler);
 		}
 }
