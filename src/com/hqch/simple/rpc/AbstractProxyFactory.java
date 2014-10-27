@@ -35,7 +35,7 @@ public abstract class AbstractProxyFactory {
 	
 	protected Object createProxy( Class<?> actionInterface,
 			InvocationHandler theHandler){
-		logger.info("create proxy:["+actionInterface+"] with handler:["+
+		logger.debug("create proxy:["+actionInterface+"] with handler:["+
 				theHandler.getClass()+"]");
 		Object proxy = Proxy.newProxyInstance(
 				actionInterface.getClassLoader(),
