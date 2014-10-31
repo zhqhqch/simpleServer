@@ -32,6 +32,7 @@ import com.hqch.simple.resource.Resource;
 import com.hqch.simple.resource.cached.MemcachedResource;
 import com.hqch.simple.resource.sql.ConnectionResource;
 import com.hqch.simple.rpc.AbstractProxyFactory;
+import com.hqch.simple.rpc.NotifEvent;
 import com.hqch.simple.rpc.RPCManager;
 import com.hqch.simple.rpc.RPCProxyFactory;
 import com.hqch.simple.server.GameRoom;
@@ -66,6 +67,8 @@ public class Container {
 	
 	private List<Notification> notifList;
 	
+	private List<GameNotification> gameNotifList;
+	
 	private Container(){
 		cachedSourceMap = new HashMap<String, MemcachedResource>();
 		dataSourceMap = new HashMap<String, ConnectionResource>();
@@ -74,6 +77,7 @@ public class Container {
 		proxyFactoryMap = new HashMap<String, RPCProxyFactory>();
 		this.gameRoomMap = new ConcurrentHashMap<String, GameRoom>();
 		this.notifList = new ArrayList<Notification>();
+		this.gameNotifList = new ArrayList<GameNotification>();
 		
 		gameScheduler = new ScheduledThreadPoolExecutor(MAX_GAME_COUNT, new ThreadFactory() {
 			@Override
@@ -217,6 +221,19 @@ public class Container {
 	
 	public void listener(Notification notif) {
 		notifList.add(notif);
+	}
+	
+	public void listener(GameNotification notif){
+		gameNotifList.add(notif);
+	}
+	
+	public void onNotification(NotifEvent event){
+		if(gameNotifList.size() == 0){
+			return;
+		}
+		for(GameNotification notif : gameNotifList){
+			notif.onNotification(event);
+		}
 	}
 	
 	public void sendNotification(GameSession session){

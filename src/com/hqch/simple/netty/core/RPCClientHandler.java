@@ -11,10 +11,13 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
+import com.hqch.simple.container.Container;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.io.RPCInfo;
 import com.hqch.simple.netty.io.RPCResult;
+import com.hqch.simple.rpc.NotifEvent;
 import com.hqch.simple.rpc.RPCManager;
+import com.hqch.simple.util.Constants;
 
 
 public class RPCClientHandler extends SimpleChannelHandler {
@@ -49,6 +52,11 @@ public class RPCClientHandler extends SimpleChannelHandler {
 	public void messageReceived(ChannelHandlerContext ctx,
 			MessageEvent messageEvent) throws Exception {
 		RPCResult result = (RPCResult)messageEvent.getMessage();
+		if(result.getId().equals(Constants.NOTIF_TAG)){
+			NotifEvent event = (NotifEvent) result.getObj();
+			Container.get().onNotification(event);
+			return;
+		}
 		RPCInfo rpc = RPCManager.getInstance().getRPC(result.getId());
 		rpc.setException(result.getException());
 		rpc.setRet(result.getObj());

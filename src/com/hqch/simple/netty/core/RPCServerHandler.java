@@ -9,11 +9,11 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.io.RPCInfo;
 import com.hqch.simple.netty.io.RPCRequest;
+import com.hqch.simple.rpc.NotificationManager;
 import com.hqch.simple.rpc.RPCServerWork;
 
 /**
@@ -25,13 +25,13 @@ public class RPCServerHandler extends SimpleChannelHandler {
 	private static Logger logger = LoggerFactory
 			.getLogger(RPCServerHandler.class);
 
-	private DefaultChannelGroup channelGroup;
-	
 	private RPCServerWork serverWork;
 	
-	public RPCServerHandler(DefaultChannelGroup channelGroup, 
+	private NotificationManager notificationManager;
+	
+	public RPCServerHandler(NotificationManager notificationManager, 
 			RPCServerWork serverWork) {
-		this.channelGroup = channelGroup;
+		this.notificationManager = notificationManager;
 		this.serverWork = serverWork;
 	}
 
@@ -39,15 +39,13 @@ public class RPCServerHandler extends SimpleChannelHandler {
 	public void channelDisconnected(ChannelHandlerContext ctx,
 			ChannelStateEvent e) throws Exception {
 		super.channelDisconnected(ctx, e);
-		channelGroup.remove(ctx.getChannel());
-		
-//		int channelID = ctx.getChannel().getId();
+		notificationManager.removeChannel(ctx.getChannel());
 	}
 
 	@Override
 	public void channelConnected(final ChannelHandlerContext ctx,
 			final ChannelStateEvent e) throws Exception {
-		channelGroup.add(ctx.getChannel());
+		notificationManager.addChannel(ctx.getChannel());
 		ctx.sendUpstream(e);
 	}
 

@@ -7,4 +7,6 @@ public class Constants {
 	public static final short END = 2000;
 	
 	public static final String HEARTBEAT = "heartbeat";
+	
+	public static final String NOTIF_TAG = "notif";
 }

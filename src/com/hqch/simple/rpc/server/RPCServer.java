@@ -5,9 +5,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
@@ -17,6 +15,8 @@ import com.hqch.simple.container.Server;
 import com.hqch.simple.log.LoggerFactory;
 import com.hqch.simple.netty.core.RPCServerPipelineFactory;
 import com.hqch.simple.netty.io.RPCResponseThread;
+import com.hqch.simple.rpc.NotifEvent;
+import com.hqch.simple.rpc.NotificationManager;
 import com.hqch.simple.rpc.RPCServerWork;
 
 public class RPCServer extends Server {
@@ -35,9 +35,12 @@ public class RPCServer extends Server {
 	private RPCResponseThread responseThread;
 	private RPCServerWork serverWork;
 	
+	private NotificationManager notificationManager;
+	
 	public RPCServer(){
 		this.responseThread = new RPCResponseThread(SERIALIZE_THREAD_SIZE);
 		this.serverWork = new RPCServerWork(responseThread);
+		this.notificationManager = new NotificationManager();
 	}
 	
 	private void init(){
@@ -45,8 +48,6 @@ public class RPCServer extends Server {
 		ServerSocketChannelFactory channelFactory = new NioServerSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool());
-		DefaultChannelGroup allChannels = new DefaultChannelGroup(
-				"rpcServerChannelGroup");
 
 		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
 
@@ -54,7 +55,7 @@ public class RPCServer extends Server {
 				new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MSG_SIZE,
 						MSG_SIZE));
 		ChannelPipelineFactory pipelineFactory = new RPCServerPipelineFactory(
-				executionHandler, allChannels, serverWork);
+				executionHandler, notificationManager, serverWork);
 		
 		bootstrap.setPipelineFactory(pipelineFactory);
 
@@ -62,8 +63,7 @@ public class RPCServer extends Server {
 		bootstrap.setOption("child.tcpNoDelay", true);
 		bootstrap.setOption("child.keepAlive", true);
 		
-		Channel serverChannel = bootstrap.bind(addr);
-		allChannels.add(serverChannel);
+		bootstrap.bind(addr);
 		
 		logger.info("rpc server was init.port:" + port);
 	}
@@ -79,4 +79,11 @@ public class RPCServer extends Server {
 		
 	}
 
+	public void sendNotif(NotifEvent event){
+		notificationManager.sendNotif(event);
+	}
+	
+	public NotificationManager getNotificationManager(){
+		return notificationManager;
+	}
 }

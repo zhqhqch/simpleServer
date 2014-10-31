@@ -3,9 +3,9 @@ package com.hqch.simple.netty.core;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 
+import com.hqch.simple.rpc.NotificationManager;
 import com.hqch.simple.rpc.RPCServerWork;
 
 /**
@@ -17,15 +17,15 @@ public class RPCServerPipelineFactory implements ChannelPipelineFactory {
 
 	private final ExecutionHandler executionHandler;
 
-	private DefaultChannelGroup channelGroup;
+	private NotificationManager notificationManager;
 
 	private final RPCServerHandler rpcServerHandler;
 
 	public RPCServerPipelineFactory(ExecutionHandler executionHandler,
-			DefaultChannelGroup channelGroup, RPCServerWork serverWork) {
-		this.channelGroup = channelGroup;
+			NotificationManager notificationManager, RPCServerWork serverWork) {
+		this.notificationManager = notificationManager;
 		this.executionHandler = executionHandler;
-		this.rpcServerHandler = new RPCServerHandler(this.channelGroup, 
+		this.rpcServerHandler = new RPCServerHandler(this.notificationManager, 
 				serverWork);
 	}
 
