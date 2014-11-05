@@ -24,7 +24,7 @@ public class GameSessionImpl implements GameSession {
 	
 	private static final int TOTAL_RECORD_TIMES = 10;
 	
-	private static final int MIN_RECORD_TIMES = 7;
+	private static final int MIN_RECORD_TIMES = 5;
 	
 	private static final int REQEUST_INTERVAL_SECOND = 3;
 	
@@ -170,7 +170,7 @@ public class GameSessionImpl implements GameSession {
 		if(this.requestTimeList.size() >= TOTAL_RECORD_TIMES){
 			this.requestTimeList.remove(0);
 		}
-		this.requestTimeList.add(System.currentTimeMillis());
+		this.requestTimeList.add(lastRequestTime);
 	}
 
 	@Override
@@ -183,6 +183,7 @@ public class GameSessionImpl implements GameSession {
 	}
 	
 	public boolean isRepeat(){
+		
 		int size = this.requestTimeList.size();
 		if(size <= MIN_RECORD_TIMES){
 			return false;
@@ -191,7 +192,7 @@ public class GameSessionImpl implements GameSession {
 		long end = this.requestTimeList.get(size - 1);
 		long interval = (end - firstRequestTime) / 1000;
 		if(interval < REQEUST_INTERVAL_SECOND){
-			return false;
+			return true;
 		}
 		
 		long first = this.requestTimeList.get(0);
