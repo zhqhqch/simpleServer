@@ -6,6 +6,9 @@ public abstract class Server {
 	protected String protocol;
 	protected boolean synchroData;
 	protected String cachedName;
+	protected int totalRecordTimes;
+	protected int minRecordTimes;
+	protected int reqeustIntervalSecond;
 	
 	public abstract void start() throws Exception;
 	
@@ -42,5 +45,28 @@ public abstract class Server {
 	public void setCachedName(String cachedName) {
 		this.cachedName = cachedName;
 	}
-	
+
+	public int getTotalRecordTimes() {
+		return totalRecordTimes;
+	}
+
+	public void setTotalRecordTimes(int totalRecordTimes) {
+		this.totalRecordTimes = totalRecordTimes;
+	}
+
+	public int getMinRecordTimes() {
+		return minRecordTimes;
+	}
+
+	public void setMinRecordTimes(int minRecordTimes) {
+		this.minRecordTimes = minRecordTimes;
+	}
+
+	public int getReqeustIntervalSecond() {
+		return reqeustIntervalSecond;
+	}
+
+	public void setReqeustIntervalSecond(int reqeustIntervalSecond) {
+		this.reqeustIntervalSecond = reqeustIntervalSecond;
+	}
 }

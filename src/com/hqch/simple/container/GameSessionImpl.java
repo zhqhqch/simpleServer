@@ -48,6 +48,10 @@ public class GameSessionImpl implements GameSession {
 	
 	private List<Long> requestTimeList;
 	
+	private int totalRecordTimes;
+	private int minRecordTimes;
+	private int reqeustIntervalSecond;
+	
 	public GameSessionImpl(String sessionID, Channel channel,
 			GameServer server){
 		this.sessionID = sessionID;
@@ -57,6 +61,19 @@ public class GameSessionImpl implements GameSession {
 		this.synchro = server.isSynchroData();
 		if(synchro){
 			this.cached = Container.get().getMemcachedByName(server.getCachedName());
+		}
+		
+		this.totalRecordTimes = server.getTotalRecordTimes();
+		if(this.totalRecordTimes == 0){
+			this.totalRecordTimes = TOTAL_RECORD_TIMES;
+		}
+		this.minRecordTimes = server.getMinRecordTimes();
+		if(this.minRecordTimes == 0){
+			this.minRecordTimes = MIN_RECORD_TIMES;
+		}
+		this.reqeustIntervalSecond = server.getReqeustIntervalSecond();
+		if(this.reqeustIntervalSecond == 0){
+			this.reqeustIntervalSecond = REQEUST_INTERVAL_SECOND;
 		}
 		
 		this.data = new HashMap<String, Object>();
@@ -167,7 +184,7 @@ public class GameSessionImpl implements GameSession {
 		}
 		this.lastRequestTime = System.currentTimeMillis();
 		
-		if(this.requestTimeList.size() >= TOTAL_RECORD_TIMES){
+		if(this.requestTimeList.size() >= this.totalRecordTimes){
 			this.requestTimeList.remove(0);
 		}
 		this.requestTimeList.add(lastRequestTime);
@@ -185,19 +202,19 @@ public class GameSessionImpl implements GameSession {
 	public boolean isRepeat(){
 		
 		int size = this.requestTimeList.size();
-		if(size <= MIN_RECORD_TIMES){
+		if(size <= this.minRecordTimes){
 			return false;
 		}
 		
 		long end = this.requestTimeList.get(size - 1);
 		long interval = (end - firstRequestTime) / 1000;
-		if(interval < REQEUST_INTERVAL_SECOND){
+		if(interval < this.reqeustIntervalSecond){
 			return true;
 		}
 		
 		long first = this.requestTimeList.get(0);
 		interval = (end - first) / 1000;
-		return interval < REQEUST_INTERVAL_SECOND;
+		return interval < this.reqeustIntervalSecond;
 	}
 
 }
