@@ -107,6 +107,10 @@ public class GameRequestThread {
 					if(session == null){
 						session = Container.get().createSession(info.getId(),info.getChannel(), server);
 					} else {
+						if(session.isRepeat()){
+							logger.warn(info.getId() + " skip this request for repeat:" + info.getSn());
+							return null;
+						}
 						session.request(info.getChannel());
 					}
 					info.setSession(session);

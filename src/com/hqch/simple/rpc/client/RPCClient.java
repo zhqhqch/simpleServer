@@ -32,7 +32,7 @@ public class RPCClient {
 	private Logger logger = LoggerFactory.getLogger(RPCClient.class);
 	
 	/**请求RPC超时时间*/
-	private static final long RPC_TIME_OUT = 10000;
+	private static final long RPC_TIME_OUT = 30000;
 	
 	/**连接RPC超时时间*/
 	private static final long CONNECT_TIME_OUT = 5000;
@@ -60,6 +60,8 @@ public class RPCClient {
 	
 	private CountDownLatch latch;
 	
+	private ClientBootstrap bootstrap;
+	
 	private static ScheduledExecutorService service =
 			Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 				@Override
@@ -75,13 +77,31 @@ public class RPCClient {
 		this.name = res.getName();
 		this.host = res.getHost();
 		this.port = res.getPort();
+		
+		this.requestThread = new RPCRequestThread(SERIALIZE_THREAD_SIZE);
+		
+		bootstrap = new ClientBootstrap(
+				new NioClientSocketChannelFactory(
+						Executors.newCachedThreadPool(),
+						Executors.newCachedThreadPool()));
+		DefaultChannelGroup allChannels = new DefaultChannelGroup(
+				"rpcClientChannelGroup");
+		ExecutionHandler executionHandler = new ExecutionHandler(
+				new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MSG_SIZE,
+						MSG_SIZE));
+		ChannelPipelineFactory pipelineFactory = new RPCClientPipelineFactory(
+				name, executionHandler, allChannels);
+		bootstrap.setPipelineFactory(pipelineFactory);
+		
+		bootstrap.setOption("child.reuseAddress", true);
+		bootstrap.setOption("child.tcpNoDelay", true);
+		bootstrap.setOption("child.keepAlive", true);
+		
 		try {
 			connect();
 		} catch (BizException e) {
 			logger.error(e.getMessage());
 		}
-		
-		this.requestThread = new RPCRequestThread(SERIALIZE_THREAD_SIZE);
 		
 		service.scheduleAtFixedRate(new Runnable() {
 			@Override
@@ -112,24 +132,6 @@ public class RPCClient {
 	
 	private void connect() throws BizException {
 		this.latch = new CountDownLatch(1);
-		
-		ClientBootstrap bootstrap = new ClientBootstrap(
-				new NioClientSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
-		DefaultChannelGroup allChannels = new DefaultChannelGroup(
-				"rpcClientChannelGroup");
-		ExecutionHandler executionHandler = new ExecutionHandler(
-				new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MSG_SIZE,
-						MSG_SIZE));
-		ChannelPipelineFactory pipelineFactory = new RPCClientPipelineFactory(
-				name, executionHandler, allChannels);
-		bootstrap.setPipelineFactory(pipelineFactory);
-		
-		bootstrap.setOption("child.reuseAddress", true);
-		bootstrap.setOption("child.tcpNoDelay", true);
-		bootstrap.setOption("child.keepAlive", true);
-
 		// 创建无连接传输channel的辅助类(UDP),包括client和server
 		ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port));
 		

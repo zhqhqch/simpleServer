@@ -82,7 +82,7 @@ public class HttpMessage {
 	public void error(HttpResponseStatus status, String msg){
 		HttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
 				status);
-
+		ChannelFuture future = null;
 		try {
 			long length = msg.length();
 			response.setHeader(HttpHeaders.Names.CONTENT_LENGTH,
@@ -92,11 +92,11 @@ public class HttpMessage {
 			ChannelBuffer buffer = new DynamicChannelBuffer(2048);
 			buffer.writeBytes(msg.getBytes("UTF-8"));
 			response.setContent(buffer);
-			channel.write(response);
+			future = channel.write(response);
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		} finally {
-			channel.close();
+			future.addListener(ChannelFutureListener.CLOSE);
 		}
 }
 	

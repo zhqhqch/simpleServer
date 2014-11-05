@@ -1,12 +1,17 @@
 package com.hqch.simple.container;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 
 import com.hqch.simple.netty.io.GameResponseThread;
 import com.hqch.simple.netty.io.ResponseInfo;
@@ -16,6 +21,12 @@ import com.hqch.simple.server.GameServer;
 public class GameSessionImpl implements GameSession {
 
 	private static final int DISCONN_TIME = 1000 * 60;
+	
+	private static final int TOTAL_RECORD_TIMES = 10;
+	
+	private static final int MIN_RECORD_TIMES = 7;
+	
+	private static final int REQEUST_INTERVAL_SECOND = 3;
 	
 	private String sessionID;
 	private Channel channel;
@@ -30,9 +41,12 @@ public class GameSessionImpl implements GameSession {
 	
 	private AtomicLong heartbeatCount;
 	private long lastRequestTime;
+	private long firstRequestTime;
 	
 	/**不公平锁*/
 	private Lock lock = new ReentrantLock();
+	
+	private List<Long> requestTimeList;
 	
 	public GameSessionImpl(String sessionID, Channel channel,
 			GameServer server){
@@ -48,6 +62,8 @@ public class GameSessionImpl implements GameSession {
 		this.data = new HashMap<String, Object>();
 		this.heartbeatCount = new AtomicLong(1);
 		this.lastRequestTime = System.currentTimeMillis();
+		this.firstRequestTime = lastRequestTime;
+		this.requestTimeList =  Collections.synchronizedList(new ArrayList<Long>());
 	}
 	
 	public Channel getChannel() {
@@ -136,7 +152,7 @@ public class GameSessionImpl implements GameSession {
 
 	@Override
 	public boolean check() {
-		if(System.currentTimeMillis() - lastRequestTime > DISCONN_TIME){
+		if(System.currentTimeMillis() - lastRequestTime > DISCONN_TIME || !connected){
 			return true;
 		}
 		return false;
@@ -144,7 +160,43 @@ public class GameSessionImpl implements GameSession {
 
 	@Override
 	public void request(Channel channel) {
-		this.channel = channel;
+		if(this.channel.getId().intValue() != channel.getId().intValue()){
+			ChannelFuture future = this.channel.getCloseFuture();
+			future.addListener(ChannelFutureListener.CLOSE);
+			this.channel = channel;
+		}
 		this.lastRequestTime = System.currentTimeMillis();
+		
+		if(this.requestTimeList.size() >= TOTAL_RECORD_TIMES){
+			this.requestTimeList.remove(0);
+		}
+		this.requestTimeList.add(System.currentTimeMillis());
 	}
+
+	@Override
+	public void invalidate() {
+		ChannelFuture future = this.channel.getCloseFuture();
+		future.addListener(ChannelFutureListener.CLOSE);
+		this.channel = null;
+		
+		this.connected = false;
+	}
+	
+	public boolean isRepeat(){
+		int size = this.requestTimeList.size();
+		if(size <= MIN_RECORD_TIMES){
+			return false;
+		}
+		
+		long end = this.requestTimeList.get(size - 1);
+		long interval = (end - firstRequestTime) / 1000;
+		if(interval < REQEUST_INTERVAL_SECOND){
+			return false;
+		}
+		
+		long first = this.requestTimeList.get(0);
+		interval = (end - first) / 1000;
+		return interval < REQEUST_INTERVAL_SECOND;
+	}
+
 }

@@ -25,4 +25,8 @@ public interface GameSession {
 	public boolean check();
 
 	public void request(Channel channel);
+	
+	public void invalidate();
+	
+	public boolean isRepeat();
 }
